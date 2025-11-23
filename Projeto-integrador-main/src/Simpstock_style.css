@@ -1,0 +1,587 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+body {
+    background-color: rgb(245, 245, 245);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding-top: 50px;
+}
+
+/* Página Principal */
+:root{
+    --red:#0077b6;
+    --white:#fff;
+    --dark:#1e1c2a;
+}
+.navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    width: 100%;
+    background: transparent;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000; 
+    box-shadow: none;
+    transition: all 0.3s;
+    height: 70px;
+    background-color: white;
+}
+
+.navigation .logo {
+    width: 150px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+}
+
+.nav-menu .nav-item a {
+    color: #007BFF; 
+    font-weight: bolder;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-menu .nav-item a:hover {
+    color: var(--red);
+}
+
+
+.home {
+    width: 100%;
+    height: calc(90vh - 70px); 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 10%;
+    flex-direction: row; 
+    gap: 2rem;
+}
+
+.home-text{
+    max-width: 37rem;
+}
+.home-text .text-h4{
+    font-size: 1.5rem;
+    color: var(--red);
+    margin-bottom: 1rem;
+}
+.home-text .text-h1{
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    line-height: 4rem;
+}
+.home-text p{
+    margin-bottom: 4rem;
+}
+.home-btn{
+    padding: 15px 45px;
+    background: var(--red);
+    color: var(--white);
+    border-radius: 10px;
+    font-weight: 700;
+    transition: all 0.5s;
+}
+.home-btn:hover{
+    background: #00b4d8;
+}
+.home-img img{
+    width: 1000px;
+    border-radius: 30px;
+    margin-left: 60px;
+}
+@media (max-width: 768px) {
+    .navigation {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 10px;
+    }
+
+    .nav-menu .nav-item a {
+        font-size: 14px;
+    }
+}
+
+.home-text {
+    max-width: 50%; 
+    text-align: left; 
+}
+    .home .text-h4{
+        font-size: 15px;
+    }
+    .home .text-h1{
+        font-size: 2.5rem;
+        line-height: 3rem;
+    }
+    .home p{
+        font-size: 15px;
+    }
+    .home-img {
+        max-width: 50%;
+    }
+    
+    .home-img img {
+        width: 100%; 
+        border-radius: 15px;
+    }
+
+/* Depoimentos */
+    .Depoimentos {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin: 20px 0;
+        padding: 20px;
+        padding: 20px 0;
+        text-align: center;
+        }
+
+      .depoimentos-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #1e1c2a;
+        margin-bottom: 20px; 
+        text-transform: uppercase;
+    }
+
+      .dep1, .dep2, .dep3 {
+        background-color: #e0dede;
+        padding: 20px;
+        border-radius: 15px;
+        width: 30%;
+        margin: 10px;
+      }
+      
+      .dep1 h2, .dep2 h2, .dep3 h2 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      
+      .dep1 p, .dep2 p, .dep3 p {
+        font-size: 14px;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      
+      .dep1 strong, .dep2 strong, .dep3 strong {
+        color: black;
+      }
+
+/*Carrosel de Clientes*/
+.clients {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: rgb(245, 245, 245);;
+  }
+  
+  .carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .carousel-images {
+    display: flex;
+    overflow: hidden;
+    width: 900px;
+  }
+  
+  .carousel-images img {
+    min-width: 300px;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .carousel-button {
+    background: #000000;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .carousel-button.prev {
+    left: 0;
+  }
+  
+  .carousel-button.next {
+    right: 0;
+  }
+
+/* Login */
+body.login-page {
+    background-color: rgb(245, 245, 245);
+    font-family: 'Montserrat', sans-serif;
+}
+
+body.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 0;
+}
+
+.container{
+    background-color: #fff;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+    position: relative;
+    overflow: hidden;
+    width: 768px;
+    max-width: 100%;
+    min-height: 480px;
+}
+
+.container p{
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.3px;
+    margin: 20px 0;
+}
+
+.container span{
+    font-size: 12px;
+}
+
+.container a{
+    color: #333;
+    font-size: 13px;
+    text-decoration: none;
+    margin: 15px 0 10px;
+}
+
+.container button{
+    background-color: #0077b6;
+    color: #fff;
+    font-size: 12px;
+    padding: 10px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.container button.hidden{
+    background-color: transparent;
+    border-color: #fff;
+}
+
+.container form{
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    height: 100%;
+}
+
+.container input{
+    background-color: #eee;
+    border: none;
+    margin: 8px 0;
+    padding: 10px 15px;
+    font-size: 13px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+}
+
+.form-container{
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+}
+
+.sign-in{
+    left: 0;
+    width: 50%;
+    z-index: 2;
+}
+
+.container.active .sign-in{
+    transform: translateX(100%);
+}
+
+.sign-up{
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+
+.container.active .sign-up{
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+    animation: move 0.6s;
+}
+
+@keyframes move{
+    0%, 49.99%{
+        opacity: 0;
+        z-index: 1;
+    }
+    50%, 100%{
+        opacity: 1;
+        z-index: 5;
+    }
+}
+
+.social-icons{
+    margin: 20px 0;
+}
+
+.social-icons a{
+    border: 1px solid #ccc;
+    border-radius: 20%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 3px;
+    width: 40px;
+    height: 40px;
+}
+
+.toggle-container{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: all 0.6s ease-in-out;
+    border-radius: 150px 0 0 100px;
+    z-index: 1000;
+}
+
+.container.active .toggle-container{
+    transform: translateX(-100%);
+    border-radius: 0 150px 100px 0;
+}
+
+.toggle{
+    background-color: #0077b6;
+    height: 100%;
+    background: linear-gradient(to right, #00b4d8, #03045e);
+    color: #fff;
+    position: relative;
+    left: -100%;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: all 0.6s ease-in-out;
+}
+
+.container.active .toggle{
+    transform: translateX(50%);
+}
+
+.toggle-panel{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 30px;
+    text-align: center;
+    top: 0;
+    transform: translateX(0);
+    transition: all 0.6s ease-in-out;
+}
+
+.toggle-left{
+    transform: translateX(-200%);
+}
+
+.container.active .toggle-left{
+    transform: translateX(0);
+}
+
+.toggle-right{
+    right: 0;
+    transform: translateX(0);
+}
+
+.container.active .toggle-right{
+    transform: translateX(200%);
+}
+
+
+/*Sobre Nós*/
+.valores
+.Valores h1,
+.Valores h2{
+    color: black;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+section {
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 1000px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    margin-bottom: 10px;
+    border-bottom: 2px solid #003366;
+    padding-bottom: 5px;
+}
+
+section p {
+    margin: 10px 0;
+}
+
+strong .valores {
+    color: black;
+}
+
+/* Contact Section */
+.contact-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.contact-container div {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background-color: #e6f7ff;
+    border-radius: 8px;
+    margin: 0 10px;
+}
+
+.contact-container div p {
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+footer {
+    background-color: #003366;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+footer p {
+    margin: 5px 0;
+}
+
+footer a {
+    color: #ffc107;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+
+/*tela_inicial*/
+.central{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+}
+
+button.central {
+    width: 350px;
+    padding: 20px;
+    margin: 15px 0;
+    border: none;
+    border-radius: 12px;
+    background-color: #333;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button.central:hover {
+    background-color: #444;
+    transform: scale(1.05);
+}
+
+h4.central {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #333;
+    font-weight: normal;
+    font-size: 16px;
+}
+
+h4 strong.central {
+    color: #3498db;
+}
+/* ... Mantenha o CSS anterior ... */
+
+/* NOVO: Estilo para o container de senha e o ícone do olho */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px; /* Espaço para não escrever em cima do ícone */
+}
+
+.password-container i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 14px;
+}
+
+.password-container i:hover {
+    color: #0077b6;
+}

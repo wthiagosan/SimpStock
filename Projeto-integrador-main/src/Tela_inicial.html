@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="Sistema_style.css">
+    <title>SimpStock - Início</title>
+</head>
+<body>
+    <header>
+        <nav class="navigation">
+            <img class="logo" src="imagens/logo.png" alt="SimStock">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="Ajuda2.html"><strong>Ajuda</strong></a></li>
+                <li class="nav-item"><a href="index.html"><strong>Sair</strong></a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="central">
+        <h1>Bem-vindo ao Sistema</h1>
+        <button onclick="window.location.href='tabela_principal.html'">Visualizar Estoque</button>
+        <button onclick="window.location.href='Cadastro_de_produtos.html'">Cadastrar Produto</button>
+        <button id="btnAdmin" onclick="window.location.href='Admin.html'" style="background-color: #1e1c2a; margin-top: 15px; display: none;">
+            <i class="fas fa-users-cog"></i> Painel Admin
+        </button>
+        <h4><strong>Agradecemos por escolher</strong> SimpStock!</h4>
+    </div>
+    <script src="Sistema_script.js"></script>
+</body>
+</html>

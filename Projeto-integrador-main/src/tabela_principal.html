@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Produtos</title>
+    <link rel="stylesheet" href="Sistema_style.css">
+</head>
+<body>
+    <header>
+        <nav class="navigation">
+                    <img class="logo" src="imagens/logo.png" alt="SimStock">
+                    <ul class="nav-menu">
+                        <li class="nav-item"><a href="Tela_inicial.html"><Strong>Voltar</Strong></a></li>
+                    </ul>
+        </nav>
+    </header>
+
+    <h1>Tabela de Produtos</h1>
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Selecionar</th>
+                <th>Nome</th>
+                <th>Marca</th>
+                <th>Validade</th>
+                <th>Código</th>
+                <th>Quantidade</th>
+                <th>Referência</th>
+                <th>Endereço no Estoque</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <button id="excluirSelecionadosBtn" class="excluir" style="display: none; margin: 20px auto;">Excluir Selecionados</button>
+    
+    <div class="central">
+         <p><a href="Cadastro_de_produtos.html">Cadastrar Novo Produto</a></p>
+    </div>
+    
+    <script src="Sistema_script.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="Simpstock_style.css">
+    <title>SimStock-Login</title>
+</head>
+<body class="login-page">
+    <header>
+        <nav class="navigation">
+            <img class="logo" src="imagens/logo.png" alt="SimStock">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html"><strong>Inicio</strong></a></li>
+                <li class="nav-item"><a href="Ajuda.html"><strong>Ajuda</strong></a></li>
+                <li class="nav-item"><a href="Sobre_nós.html"><strong>Sobre nós</strong></a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container" id="container">
+        <div class="form-container sign-up">
+            <form id="formCadastro">
+                <h1>Criar Conta</h1>
+                <span>ou use seu email para cadastro</span>
+                <input type="text" id="nomeCadastro" placeholder="Nome" required>
+                <input type="email" id="emailCadastro" placeholder="E-mail" required>
+                <div class="password-container">
+                    <input type="password" id="senhaCadastro" placeholder="Senha" required>
+                    <i class="fa-solid fa-eye" id="toggleCadastro"></i>
+                </div>
+                <button type="submit">Cadastre-se</button>
+            </form>
+        </div>
+        <div class="form-container sign-in">
+            <form id="formLogin">
+                <h1>Login</h1>
+                <span>ou use seu email e senha</span>
+                <input type="email" id="emailLogin" placeholder="E-mail" required>
+                <div class="password-container">
+                    <input type="password" id="senhaLogin" placeholder="Senha" required>
+                    <i class="fa-solid fa-eye" id="toggleLogin"></i>
+                </div>
+                <a href="#">Esqueceu sua senha?</a>
+                <button type="submit">Entrar</button>
+            </form>
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Área de Login</h1>
+                    <p>Já tem cadastro? Clique abaixo para entrar.</p>
+                    <button class="hidden" id="login">Entrar</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Área de Cadastro</h1>
+                    <p>Ainda não tem conta? Registre-se agora!</p>
+                    <button class="hidden" id="register">Cadastre-se</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="Sistema_script.js"></script>
+</body>
+</html>

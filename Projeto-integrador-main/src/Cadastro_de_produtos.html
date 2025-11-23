@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produtos</title>
+    <link rel="stylesheet" href="Sistema_style.css">
+</head>
+<body>
+    <header>
+        <nav class="navigation">
+                    <img class="logo" src="imagens/logo.png" alt="SimStock">
+                    <ul class="nav-menu">
+                        <li class="nav-item"><a href="Tela_inicial.html"><strong>Voltar</strong></a></li>
+                    </ul>
+        </nav>
+    </header>
+
+    <h1>Cadastro de Produtos</h1>
+    <form id="productForm">
+        <label for="nome"><Strong>Nome do Produto:</Strong></label>
+        <input type="text" id="nome" required>
+
+        <label for="marca"><Strong>Marca:</Strong></label>
+        <input type="text" id="marca" required>
+
+        <label for="validade"><Strong>Validade (opcional):</Strong></label>
+        <input type="date" id="validade">
+
+        <label for="codigo"><Strong>Código (SKU):</Strong></label>
+        <input type="text" id="codigo" required>
+
+        <label for="quantidade"><Strong>Quantidade:</Strong></label>
+        <input type="number" id="quantidade" required>
+
+        <label for="referencia"><Strong>Referência:</Strong></label>
+        <input type="text" id="referencia" required>
+
+        <label for="endereco"><Strong>Endereço no Estoque (Opcional):</Strong></label>
+        <input type="text" id="endereco">
+
+        <button type="submit">Cadastrar Produto</button>
+    </form>
+    <p><a href="tabela_principal.html">Ver Produtos Cadastrados</a></p>
+    <script src="Sistema_script.js"></script>
+</body>
+</html>

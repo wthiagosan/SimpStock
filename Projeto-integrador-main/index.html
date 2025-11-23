@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="Pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="src/Simpstock_style.css">
+    <title>SimpStock</title>
+</head>
+<body>
+    <header>
+        <nav class="navigation">
+                    <img class="logo" src="src/imagens/logo.png" alt="SimStock">
+                    <ul class="nav-menu">
+                        <li class="nav-item"><a href="src/Sobre_nós.html"><Strong>Sobre nós</Strong></a></li>
+                        <li class="nav-item"><a href="src/Ajuda.html"><Strong>Ajuda</Strong></a></li>
+                        <li class="nav-item"><a href="src/Login.html"><Strong>Login</Strong></a></li>
+                    </ul>
+        </nav>
+    </header>
+    <main>
+        <!-- apresentação -->
+        <section class="home">
+            <div class="home-text">
+                <h1 class="text-h1">Bem-vindo ao SimStock</h4>
+                <h4 class="text-h4">Controle o seu estoque com facilidade</h1>
+                <p>O sistema de controle de estoque que simplifica o seu negócio.<br> 
+                    adicione quantos produtos quiser com facilidade e sem pagar nada!</p>
+                <a href="src/Login.html" class="home-btn">Clique aqui para se registrar</a>
+            </div>
+            <div class="home-img">
+                <img src="src/imagens/Estoque.jpg" alt="Estoque">
+            </div>
+
+        </section>
+        <!-- Depoimentos -->
+        <section class="Depoimentos">
+            <h1 class="depoimentos-title">Depoimentos de Funcionários:</h1>
+            <div class="dep1">
+                <p>“Antes da SimpStock eu tinha que controlar tudo na mão e perdia muito tempo. Agora é muito mais prático porque tudo é automatizado.”</p>
+                <p><strong> Luana Silva</strong><br>Gerente de Loja</p>
+            </div>
+            <div class="dep2">
+                <p>“O SimpStock transformou a forma como gerenciamos nosso estoque. A plataforma é fácil de usar e tem nos ajudado a economizar tempo e reduzir erros.”</p>
+                <p><strong>Pedro Henrique Oliveira</strong><br>Coordenador de Estoque</p>
+            </div>
+            <div class="dep3">
+                <p>“Desde que começamos a usar o SimpStock, nossa gestão de estoque nunca foi tão precisa. A plataforma nos ajudou a reduzir desperdícios e melhorar a organização da loja.”</p>
+                <p><strong>Ana Carolina Martins</strong><br>Repositora</p>
+            </section>
+
+        <!-- Carrossel de Clientes -->
+        <section class="clients">
+            <h2 class="section-title">Já cuidamos do estoque de muitos clientes, só falta você!</h2>
+            <p class="section-description">Quem usa SimpStock não troca de sistema. Confira algumas empresas que confiam em nós!</p>
+            <div class="carousel">
+                <button class="carousel-button prev" onclick="prevSlide()">&#10094;</button>
+                <div class="carousel-images">
+                    <img src="src/imagens/Botinario.jpg" alt="O Botinario" class="client-logo">
+                    <img src="src/imagens/rappy.jpg" alt="Rappy" class="client-logo">
+                    <img src="src/imagens/googol.jpg" alt="Googol" class="client-logo">
+                    <img src="src/imagens/linked.jpg" alt="Linked Out">
+                    <img src="src/imagens/clothes.jpg" alt="Wesley Clothes">
+                    <img src="src/imagens/marca 6.jpg" alt="Marca 6">
+                </div>
+                <button class="carousel-button next" onclick="nextSlide()">&#10095;</button>
+            </div>
+        </section>
+    </main>
+    <!-- Rodapé -->
+    <footer>
+        <p>&copy; 2024 SimpStock. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="src/Simpstock_script.js"></script>
+</body>
+</html>
