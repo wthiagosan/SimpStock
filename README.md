@@ -152,5 +152,3 @@ pytest -v
 Projeto Integrador desenvolvido pela equipe de Ciência da Computação:
 - **Welinton Sandrin**
 - **Wesley da Silva**
-- **Jhessy**
-- **Vercio**
