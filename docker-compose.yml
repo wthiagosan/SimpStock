@@ -1,0 +1,27 @@
+services:
+  simpstock-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simpstock-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - PORT=5000
+      - SECRET_KEY=${SECRET_KEY:-simpstock-secret-production-change-me}
+      - JWT_SECRET=${JWT_SECRET:-simpstock-jwt-secret-production-change-me}
+      - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS:-24}
+      - ADMIN_NAME=${ADMIN_NAME:-ADM}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@simpstock.com}
+      - ADMIN_DEFAULT_PASSWORD=${ADMIN_DEFAULT_PASSWORD:-admin123}
+      - DATABASE_PATH=/app/data/banco.db
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+    volumes:
+      - simpstock_data:/app/data
+
+volumes:
+  simpstock_data:
+    driver: local
