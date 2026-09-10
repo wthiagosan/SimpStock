@@ -7,8 +7,10 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Tests](https://img.shields.io/badge/Tests-16%20Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org/)
 [![CI Build](https://img.shields.io/badge/CI-Passing-success?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/wthiagosan/SimpStock/actions)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-24292e?style=for-the-badge&logo=githubpages&logoColor=white)](https://wthiagosan.github.io/SimpStock/)
 
 > **Projeto Showcase de Engenharia de Software & Segurança Defensiva**  
+> 🌐 **Acesse online:** [https://wthiagosan.github.io/SimpStock/](https://wthiagosan.github.io/SimpStock/)  
 > Plataforma de gestão de inventário e controle de fluxo de mercadorias desenvolvida com arquitetura modular desacoplada (**Flask Blueprints**), autenticação semântica via **JSON Web Tokens (JWT)**, criptografia defensiva (**Scrypt/PBKDF2**), proteção contra **IDOR (Insecure Direct Object References)** e auditoria transacional completa de movimentações.
 
 ---
