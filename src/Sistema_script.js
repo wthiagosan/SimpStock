@@ -1,5 +1,5 @@
 // ============================================================
-//  SimpStock Frontend Script - v2.0 (JWT Auth, API & Live Demo)
+//  SimpStock Frontend Script (JWT Auth, API & Live Demo)
 //  Arquitetura Moderna: App Shell, Dashboard KPIs, Realtime Filters
 // ============================================================
 

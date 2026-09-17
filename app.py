@@ -1,4 +1,4 @@
-﻿import os
+import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from config import Config
@@ -27,7 +27,7 @@ def create_app(config_class=Config):
         return jsonify({
             'status': 'online',
             'app': 'SimpStock API',
-            'version': '2.0.0',
+            'version': '1.0.0',
             'description': 'Sistema de Gestão de Estoque e Inventário'
         }), 200
 
