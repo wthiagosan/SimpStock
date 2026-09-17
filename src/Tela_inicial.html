@@ -3,28 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpStock - Dashboard Executivo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="Sistema_style.css">
-    <title>SimpStock - Início</title>
 </head>
 <body>
-    <header>
-        <nav class="navigation">
-            <img class="logo" src="imagens/logo.png" alt="SimpStock">
-            <ul class="nav-menu">
-                <li class="nav-item"><a href="Ajuda.html"><strong>Ajuda</strong></a></li>
-                <li class="nav-item"><a href="#" onclick="logout(); return false;" id="btnSairNav"><strong>Sair</strong></a></li>
-            </ul>
-        </nav>
-    </header>
-    <div class="central">
-        <h1>Bem-vindo ao Sistema</h1>
-        <button onclick="window.location.href='tabela_principal.html'">Visualizar Estoque</button>
-        <button onclick="window.location.href='Cadastro_de_produtos.html'">Cadastrar Produto</button>
-        <button id="btnAdmin" onclick="window.location.href='Admin.html'" style="background-color: #1e1c2a; margin-top: 15px; display: none;">
-            <i class="fas fa-users-cog"></i> Painel Admin
-        </button>
-        <h4><strong>Agradecemos por escolher</strong> SimpStock!</h4>
+    <div class="app-layout">
+        <!-- Sidebar de Navegação Corporativa -->
+        <aside class="app-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="Tela_inicial.html" class="brand-logo">
+                    <img src="imagens/logo.png" alt="SimpStock">
+                </a>
+                <span class="brand-badge">v2.0</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Principal</span>
+                <a href="Tela_inicial.html" class="sidebar-link active">
+                    <i class="ti ti-layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="tabela_principal.html" class="sidebar-link">
+                    <i class="ti ti-package"></i>
+                    <span>Estoque de Produtos</span>
+                </a>
+                <a href="Cadastro_de_produtos.html" class="sidebar-link">
+                    <i class="ti ti-circle-plus"></i>
+                    <span>Novo Produto</span>
+                </a>
+
+                <div id="adminMenuSection" style="display: none;">
+                    <span class="nav-section-title">Administração</span>
+                    <a href="Admin.html" class="sidebar-link">
+                        <i class="ti ti-users-group"></i>
+                        <span>Gestão de Usuários</span>
+                    </a>
+                </div>
+
+                <span class="nav-section-title">Suporte</span>
+                <a href="Ajuda.html" class="sidebar-link">
+                    <i class="ti ti-help-circle"></i>
+                    <span>Ajuda & FAQ</span>
+                </a>
+                <a href="Sobre_nos.html" class="sidebar-link">
+                    <i class="ti ti-info-circle"></i>
+                    <span>Sobre o Projeto</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-info-wrapper">
+                        <div class="user-avatar" id="userAvatar">SS</div>
+                        <div class="user-details">
+                            <span class="user-name" id="sidebarUserName">Carregando...</span>
+                            <span class="user-role-badge" id="sidebarUserRole">Lojista</span>
+                        </div>
+                    </div>
+                    <button class="btn-logout" onclick="logout()" title="Encerrar Sessão">
+                        <i class="ti ti-logout"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área Principal da Aplicação -->
+        <div class="app-main">
+            <!-- Topbar Superior -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="topbar-mobile-toggle" id="btnToggleSidebar">
+                        <i class="ti ti-menu-2"></i>
+                    </button>
+                    <h2 class="topbar-title">Visão Geral do Estoque</h2>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="status-indicator-pill">
+                        <span class="status-dot" id="systemStatusDot"></span>
+                        <span id="systemStatusText">Conectando...</span>
+                    </div>
+                    <a href="Cadastro_de_produtos.html" class="btn-primary-action">
+                        <i class="ti ti-plus"></i>
+                        <span>Novo Produto</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Conteúdo do Dashboard -->
+            <main class="app-content">
+                <!-- Grid de KPIs / Métricas -->
+                <section class="kpi-grid">
+                    <!-- KPI 1: Total de Produtos -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">Catálogo Ativo</span>
+                            <div class="kpi-icon-badge indigo">
+                                <i class="ti ti-box-seam"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiTotalProdutos">-</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-check"></i>
+                            <span>Tipos de produtos cadastrados</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Estoque Crítico -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">Estoque Baixo</span>
+                            <div class="kpi-icon-badge amber">
+                                <i class="ti ti-alert-triangle"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiEstoqueBaixo" style="color: var(--amber-dark);">-</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-alert-circle"></i>
+                            <span>Itens com menos de 5 unidades</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Itens Esgotados -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">Itens Esgotados</span>
+                            <div class="kpi-icon-badge rose">
+                                <i class="ti ti-circle-x"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiEsgotados" style="color: var(--rose);">-</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-arrow-down-right"></i>
+                            <span>Itens com quantidade zerada</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Unidades Totais em Depósito -->
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">Total de Unidades</span>
+                            <div class="kpi-icon-badge emerald">
+                                <i class="ti ti-archive"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiTotalUnidades" style="color: var(--emerald-dark);">-</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-layers-intersect"></i>
+                            <span>Unidades físicas estocadas</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tabela de Acesso Rápido aos Produtos Recentes -->
+                <div class="table-card">
+                    <div class="table-toolbar">
+                        <div>
+                            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--slate-900);">
+                                <i class="ti ti-list" style="color: var(--primary);"></i> Últimos Itens Movimentados
+                            </h3>
+                            <p style="font-size: 0.8rem; color: var(--slate-500); margin: 0;">Acompanhe em tempo real as quantidades dos itens do seu estoque</p>
+                        </div>
+                        <a href="tabela_principal.html" class="btn-secondary" style="font-size: 0.82rem;">
+                            Ver Todo o Estoque <i class="ti ti-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto / Código</th>
+                                    <th>Marca</th>
+                                    <th>Quantidade</th>
+                                    <th>Status</th>
+                                    <th>Localização</th>
+                                    <th style="text-align: right;">Ação Rápida</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardRecentTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--slate-400);">
+                                        <i class="ti ti-loader" style="font-size: 1.5rem; animation: spin 1s infinite linear;"></i>
+                                        <p style="margin-top: 0.5rem;">Carregando métricas do estoque...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
+
+    <!-- Scripts da Aplicação -->
     <script src="Sistema_script.js"></script>
+    <script>
+        // Inicialização do Dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.carregarDashboardKPIs) {
+                carregarDashboardKPIs();
+            }
+            
+            // Toggle sidebar mobile
+            document.getElementById('btnToggleSidebar')?.addEventListener('click', () => {
+                document.getElementById('sidebar')?.classList.toggle('open');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,52 +1,181 @@
 <!DOCTYPE html>
-<html lang="Pt-br">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpStock - Central de Ajuda & FAQ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="Simpstock_style.css">
-    <title>SimpStock-Central de Ajuda</title>
 </head>
 <body>
+    <!-- Navbar Pública -->
     <header>
         <nav class="navigation">
-            <img class="logo" src="imagens/logo.png" alt="SimStock">
+            <a href="../index.html" class="brand-link">
+                <img class="logo" src="imagens/logo.png" alt="SimpStock">
+            </a>
             <ul class="nav-menu" id="navAjuda">
-                <li class="nav-item"><a href="../index.html"><strong>Inicio</strong></a></li>
-                <li class="nav-item"><a href="Sobre_nos.html"><strong>Sobre Nós</strong></a></li>
-                <li class="nav-item"><a href="Login.html"><strong>Login</strong></a></li>
+                <li class="nav-item"><a href="../index.html">Início</a></li>
+                <li class="nav-item"><a href="Sobre_nos.html">Sobre Nós</a></li>
+                <li class="nav-item"><a href="Ajuda.html" style="color: var(--primary); font-weight: 600;">Ajuda & FAQ</a></li>
+                <li class="nav-item"><a href="Login.html" class="nav-btn-login">Acessar Sistema</a></li>
             </ul>
         </nav>
     </header>
-    <main class="Valores">
-        <h1>Central de Ajuda SimpStock</h1>
 
-        <div class="principal">
-            <section class="perguntas">
-                <h2>Perguntas Frequentes:</h2>
-                <p><strong>Como adicionar novo produto?</strong> No menu principal, selecione “Adicionar Produto”, preencha as informações e clique em “Salvar”.</p>
-                <p><strong>Como registrar saída de produto?</strong> Em “Gerenciar Estoque”, selecione o item, insira a quantidade a remover e confirme.</p>
-                <p><strong>Como visualizar relatórios?</strong> Acesse “Relatórios” para ver o histórico de entradas e saídas e previsões de reposição.</p>
-                <p><strong>Como editar ou excluir um produto?</strong> Em “Gerenciar Estoque”, selecione o produto, clique em “Editar” para atualizar ou “Excluir” para removê-lo.</p>
-                <p><strong>Como redefinir senha?</strong> Na tela de login, clique em “Esqueceu sua senha?” e siga as instruções enviadas por e-mail.</p>
-            </section>
+    <main class="content-page-main">
+        <!-- Hero Header -->
+        <section class="page-hero">
+            <div class="page-hero-badge">
+                <i class="ti ti-help-hexagon"></i> Central de Ajuda & Documentação
+            </div>
+            <h1 class="page-hero-title">
+                Como podemos <span>ajudar você</span> hoje?
+            </h1>
+            <p class="page-hero-subtitle">
+                Tire suas dúvidas sobre o funcionamento do SimpStock, boas práticas de gestão de inventário e configurações de acesso.
+            </p>
+        </section>
 
-            <section class="guia">
-                <h2>Guia de Boas Práticas:</h2>
-                <p><strong>Atualize seu estoque frequentemente:</strong> Registre entradas e saídas de forma constante para manter o inventário preciso e a gestão eficiente.</p>
-                <p><strong>Realize inventários periódicos:</strong> Faça inventários físicos regularmente para corrigir inconsistências e manter os dados do estoque atualizados.</p>
-                <p><strong>Use os relatórios a seu favor:</strong> Aproveite os relatórios de vendas e reposição de estoque para tomar decisões estratégicas e planejar seu negócio.</p>
-            </section>
+        <!-- Perguntas Frequentes (Accordion Interativo) -->
+        <section class="subpage-section">
+            <h2 class="subpage-section-title">
+                <i class="ti ti-help-circle"></i> Perguntas Frequentes (FAQ)
+            </h2>
 
-            <section class="contato">
-                <h2>Não encontrou sua dúvida?</h2>
-                <p>Se você não encontrou o que procura nas Perguntas Frequentes, entre em contato com nosso suporte pelo e-mail <strong>suporte@simpstock.com</strong>. Nossa equipe está pronta para ajudar com dúvidas ou problemas técnicos.</p>
-                <p><strong>Horário de Atendimento:</strong> Segunda a Sexta, das 9h às 18h.</p>
-            </section>
-        </div>
+            <div class="faq-container">
+                <!-- FAQ 1 -->
+                <div class="faq-item active">
+                    <div class="faq-question">
+                        <span>Como cadastrar um novo produto no catálogo?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Após fazer login, acesse a opção <strong>"Novo Produto"</strong> no menu lateral ou clique no botão azul <strong>"+ Novo Produto"</strong> na barra superior. Preencha o nome, marca, código SKU exclusivo, quantidade inicial, código de referência, data de validade (opcional) e a localização no armazém/prateleira. Clique em <em>"Salvar Produto"</em> para disponibilizá-lo imediatamente no inventário.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Como realizar ajustes rápidos de estoque diretamente na tabela?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>No Dashboard ou na tela de <strong>"Estoque de Produtos"</strong>, você conta com seletores rápidos <code>+</code> e <code>-</code> ao lado da quantidade de cada item. Clicar neles ajusta as unidades instantaneamente sem precisar entrar na tela de edição completa, registrando a operação de forma segura.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Como funcionam os alertas de estoque crítico e itens esgotados?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>O SimpStock monitora automaticamente os saldos do seu estoque: itens com <strong>0 unidades</strong> recebem destaque vermelho (<em>Esgotado</em>) e são contabilizados no KPI de ruptura; itens com <strong>menos de 5 unidades</strong> recebem aviso amarelo (<em>Estoque Baixo</em>) para que você possa planejar a reposição antes do esgotamento.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Como testar o sistema online sem instalar banco de dados?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>O SimpStock conta com o <strong>Modo Demonstração (Live Demo)</strong>. Na página inicial ou na tela de login, clique em <em>"Ver Demonstração Online"</em>. O sistema carregará um banco de dados virtual via <code>localStorage</code> com produtos e usuários de teste, permitindo testar buscas em tempo real, cadastros, edições e exclusões com 100% de funcionalidade em qualquer navegador.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Como funciona o controle de permissões de usuários (RBAC)?</span>
+                        <i class="ti ti-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Usuários com perfil de <strong>Lojista</strong> gerenciam apenas seu próprio catálogo de produtos. Usuários com perfil de <strong>Administrador</strong> têm acesso ao painel <em>Gestão de Usuários</em>, podendo listar contas registradas e remover acessos não autorizados. A proteção do administrador mestre (ID: 1) impede a desativação acidental do tenant principal.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Guia de Boas Práticas -->
+        <section class="subpage-section">
+            <h2 class="subpage-section-title">
+                <i class="ti ti-bulb"></i> Melhores Práticas para Gestão de Estoque
+            </h2>
+
+            <div class="cards-grid-3">
+                <div class="info-card">
+                    <div class="info-card-icon indigo">
+                        <i class="ti ti-barcode"></i>
+                    </div>
+                    <h3>Padronize SKUs e Referências</h3>
+                    <p>Crie códigos mnemônicos (ex: <code>SKU-MON-27</code>) para localizar produtos em milissegundos e evitar registros duplicados no seu depósito.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-icon emerald">
+                        <i class="ti ti-map-pin"></i>
+                    </div>
+                    <h3>Especifique Endereçamento</h3>
+                    <p>Sempre informe o corredor e a prateleira no campo de endereço. Isso reduz o tempo de separação (picking) da sua equipe em até 40%.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-icon amber">
+                        <i class="ti ti-calendar-event"></i>
+                    </div>
+                    <h3>Monitore Prazos de Validade</h3>
+                    <p>Para mercadorias perecíveis ou sob garantia, preencha a data de validade para priorizar a saída pelo método PEPS (Primeiro a Vencer, Primeiro a Sair).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Banner de Contato -->
+        <section class="contact-banner">
+            <div class="contact-content">
+                <h3>Ainda precisa de auxílio?</h3>
+                <p>Nossa equipe de suporte técnico e engenharia de software está pronta para responder suas dúvidas sobre integração, API ou deploy em nuvem.</p>
+            </div>
+            <div class="contact-channels">
+                <div class="contact-item">
+                    <i class="ti ti-mail"></i>
+                    <div>
+                        <div class="contact-item-title">E-mail de Suporte</div>
+                        <div class="contact-item-value">suporte@simpstock.com</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="ti ti-clock"></i>
+                    <div>
+                        <div class="contact-item-title">Horário de Atendimento</div>
+                        <div class="contact-item-value">Seg a Sex, 09h às 18h</div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>&copy; 2024–2026 <strong>SimpStock</strong>. Todos os direitos reservados.</p>
+        <p>Projeto de Engenharia de Software desenvolvido por <strong>Welinton Thiago</strong> e <strong>Wesley</strong>.</p>
+    </footer>
+
+    <!-- Script para FAQ interativo -->
     <script src="Sistema_script.js"></script>
+    <script>
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                const item = q.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+    </script>
 </body>
 </html>

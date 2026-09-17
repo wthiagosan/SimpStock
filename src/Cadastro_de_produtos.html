@@ -3,90 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Produtos</title>
-    <link rel="stylesheet" href="Sistema_style.css">
+    <title>SimpStock - Cadastrar Produto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="Sistema_style.css">
 </head>
 <body>
-    <header>
-        <nav class="navigation">
-            <img class="logo" src="imagens/logo.png" alt="SimStock">
-            <ul class="nav-menu">
-                <li class="nav-item"><a href="Tela_inicial.html"><strong>Voltar</strong></a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="page-content">
-        <div class="form-card">
-            <div class="form-header">
-                <i class="ti ti-package" aria-hidden="true"></i>
-                <div>
-                    <h1>Cadastro de produto</h1>
-                    <p>Preencha os dados do novo item do estoque</p>
-                </div>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="app-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="Tela_inicial.html" class="brand-logo">
+                    <img src="imagens/logo.png" alt="SimpStock">
+                </a>
+                <span class="brand-badge">v2.0</span>
             </div>
 
-            <form id="productForm">
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="nome">
-                            <i class="ti ti-tag" aria-hidden="true"></i> Nome do produto
-                        </label>
-                        <input type="text" id="nome" placeholder="Ex: Mesa de escritório" required>
-                    </div>
-                    <div class="field">
-                        <label for="marca">
-                            <i class="ti ti-building-store" aria-hidden="true"></i> Marca
-                        </label>
-                        <input type="text" id="marca" placeholder="Ex: Samsung" required>
-                    </div>
-                    <div class="field">
-                        <label for="codigo">
-                            <i class="ti ti-barcode" aria-hidden="true"></i> Código (SKU)
-                        </label>
-                        <input type="text" id="codigo" placeholder="Ex: SKU-0012" required>
-                    </div>
-                    <div class="field">
-                        <label for="quantidade">
-                            <i class="ti ti-hash" aria-hidden="true"></i> Quantidade
-                        </label>
-                        <input type="number" id="quantidade" placeholder="Ex: 50" min="0" required>
-                    </div>
-                    <div class="field">
-                        <label for="referencia">
-                            <i class="ti ti-git-branch" aria-hidden="true"></i> Referência
-                        </label>
-                        <input type="text" id="referencia" placeholder="Ex: REF-001" required>
-                    </div>
-                    <div class="field">
-                        <label for="validade">
-                            <i class="ti ti-calendar" aria-hidden="true"></i> Validade
-                            <span class="badge-opcional">opcional</span>
-                        </label>
-                        <input type="date" id="validade">
-                    </div>
-                    <div class="field field-full">
-                        <label for="endereco">
-                            <i class="ti ti-map-pin" aria-hidden="true"></i> Endereço no estoque
-                            <span class="badge-opcional">opcional</span>
-                        </label>
-                        <input type="text" id="endereco" placeholder="Ex: Prateleira A3, corredor 2">
-                    </div>
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Principal</span>
+                <a href="Tela_inicial.html" class="sidebar-link">
+                    <i class="ti ti-layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="tabela_principal.html" class="sidebar-link">
+                    <i class="ti ti-package"></i>
+                    <span>Estoque de Produtos</span>
+                </a>
+                <a href="Cadastro_de_produtos.html" class="sidebar-link active">
+                    <i class="ti ti-circle-plus"></i>
+                    <span>Novo Produto</span>
+                </a>
+
+                <div id="adminMenuSection" style="display: none;">
+                    <span class="nav-section-title">Administração</span>
+                    <a href="Admin.html" class="sidebar-link">
+                        <i class="ti ti-users-group"></i>
+                        <span>Gestão de Usuários</span>
+                    </a>
                 </div>
 
-                <div class="form-footer">
-                    <a href="tabela_principal.html" class="btn-voltar">
-                        <i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar
-                    </a>
-                    <button type="submit" class="btn-salvar">
-                        <i class="ti ti-circle-check" aria-hidden="true"></i> Cadastrar produto
+                <span class="nav-section-title">Suporte</span>
+                <a href="Ajuda.html" class="sidebar-link">
+                    <i class="ti ti-help-circle"></i>
+                    <span>Ajuda & FAQ</span>
+                </a>
+                <a href="Sobre_nos.html" class="sidebar-link">
+                    <i class="ti ti-info-circle"></i>
+                    <span>Sobre o Projeto</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-info-wrapper">
+                        <div class="user-avatar" id="userAvatar">SS</div>
+                        <div class="user-details">
+                            <span class="user-name" id="sidebarUserName">Carregando...</span>
+                            <span class="user-role-badge" id="sidebarUserRole">Lojista</span>
+                        </div>
+                    </div>
+                    <button class="btn-logout" onclick="logout()" title="Encerrar Sessão">
+                        <i class="ti ti-logout"></i>
                     </button>
                 </div>
-            </form>
+            </div>
+        </aside>
+
+        <!-- Área Principal -->
+        <div class="app-main">
+            <!-- Topbar -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="topbar-mobile-toggle" id="btnToggleSidebar">
+                        <i class="ti ti-menu-2"></i>
+                    </button>
+                    <h2 class="topbar-title">Cadastro de Produto</h2>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="tabela_principal.html" class="btn-secondary">
+                        <i class="ti ti-arrow-left"></i>
+                        <span>Voltar ao Estoque</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Conteúdo -->
+            <main class="app-content">
+                <div class="form-container-card">
+                    <div class="form-header">
+                        <div class="form-header-icon">
+                            <i class="ti ti-package"></i>
+                        </div>
+                        <div>
+                            <h1>Novo Item de Estoque</h1>
+                            <p>Preencha os dados do produto para adicioná-lo ao catálogo</p>
+                        </div>
+                    </div>
+
+                    <form id="productForm">
+                        <div class="form-grid-2">
+                            <!-- Nome do Produto -->
+                            <div class="form-group full-width">
+                                <label for="nome"><i class="ti ti-tag"></i> Nome do Produto *</label>
+                                <input type="text" id="nome" class="form-control" placeholder="Ex: Teclado Mecânico RGB Wireless" required>
+                            </div>
+
+                            <!-- Marca -->
+                            <div class="form-group">
+                                <label for="marca"><i class="ti ti-building-store"></i> Marca / Fabricante *</label>
+                                <input type="text" id="marca" class="form-control" placeholder="Ex: Logitech" required>
+                            </div>
+
+                            <!-- Código SKU -->
+                            <div class="form-group">
+                                <label for="codigo"><i class="ti ti-barcode"></i> Código (SKU) *</label>
+                                <input type="text" id="codigo" class="form-control" placeholder="Ex: SKU-LOG-0042" required>
+                            </div>
+
+                            <!-- Quantidade -->
+                            <div class="form-group">
+                                <label for="quantidade"><i class="ti ti-hash"></i> Quantidade Inicial *</label>
+                                <input type="number" id="quantidade" class="form-control" placeholder="Ex: 50" min="0" required>
+                            </div>
+
+                            <!-- Referência -->
+                            <div class="form-group">
+                                <label for="referencia"><i class="ti ti-git-branch"></i> Código de Referência *</label>
+                                <input type="text" id="referencia" class="form-control" placeholder="Ex: REF-MX-KEYS" required>
+                            </div>
+
+                            <!-- Validade -->
+                            <div class="form-group">
+                                <label for="validade"><i class="ti ti-calendar"></i> Data de Validade (Opcional)</label>
+                                <input type="date" id="validade" class="form-control">
+                            </div>
+
+                            <!-- Localização no Estoque -->
+                            <div class="form-group">
+                                <label for="endereco"><i class="ti ti-map-pin"></i> Endereço no Armazém (Opcional)</label>
+                                <input type="text" id="endereco" class="form-control" placeholder="Ex: Corredor B, Prateleira 3">
+                            </div>
+                        </div>
+
+                        <div class="form-footer-actions">
+                            <a href="tabela_principal.html" class="btn-secondary">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn-primary-action">
+                                <i class="ti ti-check"></i> Salvar Produto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
         </div>
     </div>
 
     <script src="Sistema_script.js"></script>
+    <script>
+        document.getElementById('btnToggleSidebar')?.addEventListener('click', () => {
+            document.getElementById('sidebar')?.classList.toggle('open');
+        });
+    </script>
 </body>
 </html>

@@ -3,66 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpStock - Autenticação</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="Simpstock_style.css">
-    <title>SimStock-Login</title>
+    <link rel="stylesheet" href="Sistema_style.css">
 </head>
-<body class="login-page">
+<body class="login-page-body">
+    <!-- Navbar Minimalista -->
     <header>
         <nav class="navigation">
-            <img class="logo" src="imagens/logo.png" alt="SimStock">
+            <a href="../index.html">
+                <img class="logo" src="imagens/logo.png" alt="SimpStock">
+            </a>
             <ul class="nav-menu">
-                <li class="nav-item"><a href="../index.html"><strong>Inicio</strong></a></li>
-                <li class="nav-item"><a href="Ajuda.html"><strong>Ajuda</strong></a></li>
-                <li class="nav-item"><a href="Sobre_nos.html"><strong>Sobre nós</strong></a></li>
+                <li class="nav-item"><a href="../index.html"><i class="ti ti-home"></i> Início</a></li>
+                <li class="nav-item"><a href="Ajuda.html"><i class="ti ti-help-circle"></i> Ajuda</a></li>
+                <li class="nav-item"><a href="Sobre_nos.html"><i class="ti ti-info-circle"></i> Sobre nós</a></li>
             </ul>
         </nav>
     </header>
-    <div class="container" id="container">
+
+    <!-- Card de Autenticação Dividido -->
+    <div class="auth-container" id="container">
+        <!-- Formulário de Cadastro (Sign Up) -->
         <div class="form-container sign-up">
             <form id="formCadastro">
                 <h1>Criar Conta</h1>
-                <span>ou use seu email para cadastro</span>
-                <input type="text" id="nomeCadastro" placeholder="Nome" required>
-                <input type="email" id="emailCadastro" placeholder="E-mail" required>
+                <span>Preencha seus dados para começar gratuitamente</span>
+                <input type="text" id="nomeCadastro" placeholder="Nome Completo" required>
+                <input type="email" id="emailCadastro" placeholder="Seu melhor e-mail" required>
                 <div class="password-container">
-                    <input type="password" id="senhaCadastro" placeholder="Senha" required>
+                    <input type="password" id="senhaCadastro" placeholder="Senha segura (mínimo 6 dígitos)" required>
                     <i class="fa-solid fa-eye" id="toggleCadastro"></i>
                 </div>
-                <button type="submit">Cadastre-se</button>
+                <button type="submit" class="btn-auth-submit">Cadastre-se</button>
             </form>
         </div>
+
+        <!-- Formulário de Login (Sign In) -->
         <div class="form-container sign-in">
             <form id="formLogin">
-                <h1>Login</h1>
-                <span>ou use seu email e senha</span>
-                <input type="email" id="emailLogin" placeholder="E-mail" required>
+                <h1>Bem-vindo de volta</h1>
+                <span>Informe suas credenciais para acessar o painel</span>
+                <input type="email" id="emailLogin" placeholder="E-mail corporativo" required>
                 <div class="password-container">
-                    <input type="password" id="senhaLogin" placeholder="Senha" required>
+                    <input type="password" id="senhaLogin" placeholder="Sua senha" required>
                     <i class="fa-solid fa-eye" id="toggleLogin"></i>
                 </div>
-                <a href="#">Esqueceu sua senha?</a>
-                <button type="submit">Entrar</button>
-                <button type="button" id="btnDemoLogin" style="background-color: #2d3748; margin-top: 10px; font-size: 11px;">
-                    🚀 Testar Modo Demonstração (Online)
+                <button type="submit" class="btn-auth-submit">Entrar no Sistema</button>
+                <button type="button" id="btnDemoLogin" class="btn-auth-demo">
+                    🚀 Acesso Imediato: Modo Demonstração
                 </button>
             </form>
         </div>
+
+        <!-- Painel Deslizante de Alternância -->
         <div class="toggle-container">
             <div class="toggle">
                 <div class="toggle-panel toggle-left">
-                    <h1>Área de Login</h1>
-                    <p>Já tem cadastro? Clique abaixo para entrar.</p>
-                    <button class="hidden" id="login">Entrar</button>
+                    <h1>Já possui conta?</h1>
+                    <p>Faça login para acessar o catálogo de produtos e os relatórios em tempo real.</p>
+                    <button class="btn-toggle-ghost" id="login">Entrar</button>
                 </div>
                 <div class="toggle-panel toggle-right">
-                    <h1>Área de Cadastro</h1>
-                    <p>Ainda não tem conta? Registre-se agora!</p>
-                    <button class="hidden" id="register">Cadastre-se</button>
+                    <h1>Novo no SimpStock?</h1>
+                    <p>Crie sua conta em poucos segundos e organize seu estoque com facilidade.</p>
+                    <button class="btn-toggle-ghost" id="register">Cadastre-se</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Scripts -->
     <script src="Sistema_script.js"></script>
+    <script>
+        // Animação de alternância entre Login e Cadastro
+        const container = document.getElementById('container');
+        const registerBtn = document.getElementById('register');
+        const loginBtn = document.getElementById('login');
+
+        registerBtn?.addEventListener('click', () => {
+            container.classList.add("active");
+        });
+
+        loginBtn?.addEventListener('click', () => {
+            container.classList.remove("active");
+        });
+    </script>
 </body>
 </html>

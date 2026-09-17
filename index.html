@@ -1,77 +1,145 @@
 <!DOCTYPE html>
-<html lang="Pt-br">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpStock 2.0 | Sistema Inteligente de Controle de Estoque</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="src/Simpstock_style.css">
-    <title>SimpStock</title>
 </head>
 <body>
+    <!-- Navbar -->
     <header>
         <nav class="navigation">
-            <img class="logo" src="src/imagens/logo.png" alt="SimStock">
+            <a href="index.html" class="brand-link">
+                <img class="logo" src="src/imagens/logo.png" alt="SimpStock">
+            </a>
             <ul class="nav-menu">
-                <li class="nav-item"><a href="src/Sobre_nos.html"><strong>Sobre nós</strong></a></li>
-                <li class="nav-item"><a href="src/Ajuda.html"><strong>Ajuda</strong></a></li>
-                <li class="nav-item"><a href="src/Login.html"><strong>Login</strong></a></li>
+                <li class="nav-item"><a href="src/Sobre_nos.html">Sobre nós</a></li>
+                <li class="nav-item"><a href="src/Ajuda.html">Ajuda & FAQ</a></li>
+                <li class="nav-item"><a href="src/Login.html" class="nav-btn-login">Acessar Sistema</a></li>
             </ul>
         </nav>
     </header>
+
     <main>
-        <section class="home">
-            <div class="home-text">
-                <h1 class="text-h1">Bem-vindo ao SimpStock</h1>
-                <h4 class="text-h4">Controle o seu estoque com facilidade</h4>
-                <p>O sistema de controle de estoque que simplifica o seu negócio.<br>
-                    adicione quantos produtos quiser com facilidade e sem pagar nada!</p>
-                <a href="src/Login.html" class="home-btn">Clique aqui para se registrar</a>
-            </div>
-            <div class="home-img">
-                <img src="src/imagens/Estoque.jpg" alt="Estoque">
-            </div>
-        </section>
-
-        <section class="Depoimentos">
-            <h1 class="depoimentos-title">Depoimentos de Funcionários:</h1>
-            <div class="dep1">
-                <p>"Antes da SimpStock eu tinha que controlar tudo na mão e perdia muito tempo. Agora é muito mais prático porque tudo é automatizado."</p>
-                <p><strong>Luana Silva</strong><br>Gerente de Loja</p>
-            </div>
-            <div class="dep2">
-                <p>"O SimpStock transformou a forma como gerenciamos nosso estoque. A plataforma é fácil de usar e tem nos ajudado a economizar tempo e reduzir erros."</p>
-                <p><strong>Pedro Henrique Oliveira</strong><br>Coordenador de Estoque</p>
-            </div>
-            <div class="dep3">
-                <p>"Desde que começamos a usar o SimpStock, nossa gestão de estoque nunca foi tão precisa. A plataforma nos ajudou a reduzir desperdícios e melhorar a organização da loja."</p>
-                <p><strong>Ana Carolina Martins</strong><br>Repositora</p>
-            </div>
-        </section>
-
-        <section class="clients">
-            <h2 class="section-title">Já cuidamos do estoque de muitos clientes, só falta você!</h2>
-            <p class="section-description">Quem usa SimpStock não troca de sistema. Confira algumas empresas que confiam em nós!</p>
-            <div class="carousel">
-                <button class="carousel-button prev" onclick="prevSlide()">&#10094;</button>
-                <div class="carousel-images">
-                    <img src="src/imagens/Botinario.jpg" alt="O Botinario" class="client-logo">
-                    <img src="src/imagens/rappy.jpg" alt="Rappy" class="client-logo">
-                    <img src="src/imagens/googol.jpg" alt="Googol" class="client-logo">
-                    <img src="src/imagens/linked.jpg" alt="Linked Out">
-                    <img src="src/imagens/clothes.jpg" alt="Wesley Clothes">
-                    <img src="src/imagens/marca 6.jpg" alt="Marca 6">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="ti ti-sparkles"></i> SimpStock v2.0 • SaaS de Gestão de Estoque
                 </div>
-                <button class="carousel-button next" onclick="nextSlide()">&#10095;</button>
+                <h1 class="hero-title">
+                    Controle de estoque <span>inteligente e ágil</span> para o seu negócio.
+                </h1>
+                <p class="hero-subtitle">
+                    Cadastre produtos com SKU único, acompanhe níveis críticos de estoque em tempo real, audite movimentações e gerencie equipes com autenticação segura.
+                </p>
+                <div class="hero-actions">
+                    <a href="src/Login.html" class="btn-hero-primary">
+                        <i class="ti ti-arrow-right"></i> Começar Gratuitamente
+                    </a>
+                    <a href="#" id="btnHeroDemo" class="btn-hero-demo">
+                        <i class="ti ti-rocket"></i> Ver Demo Online (Sem Cadastro)
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-image-wrapper">
+                <div class="hero-image-card">
+                    <img src="src/imagens/Estoque.jpg" alt="Painel SimpStock Estoque">
+                </div>
+            </div>
+        </section>
+
+        <!-- Metrics Banner -->
+        <section class="metrics-banner">
+            <div class="metrics-inner">
+                <div class="metric-item">
+                    <div class="metric-number">100%</div>
+                    <div class="metric-label">Seguro com JWT & RBAC</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-number">&lt; 50ms</div>
+                    <div class="metric-label">Tempo de Resposta em SQLite ACID</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-number">16 / 16</div>
+                    <div class="metric-label">Testes Automatizados Aprovados</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-number">Docker</div>
+                    <div class="metric-label">Containerização Pronta para Nuvem</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="features-section">
+            <div class="section-header">
+                <span class="section-badge">Recursos Principais</span>
+                <h2 class="section-title">Tudo o que sua operação precisa para não perder nenhuma venda</h2>
+                <p class="section-desc">Desenvolvido com arquitetura corporativa moderna, garantindo rapidez e consistência de dados.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper indigo">
+                        <i class="ti ti-package"></i>
+                    </div>
+                    <h3>Controle de SKUs e Produtos</h3>
+                    <p>Cadastro completo de itens com código de barras/SKU, marca, localização física no armazém e controle de validades.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper amber">
+                        <i class="ti ti-alert-triangle"></i>
+                    </div>
+                    <h3>Alertas de Estoque Crítico</h3>
+                    <p>Identificação visual instantânea de produtos com estoque baixo ou zerado, prevenindo rupturas na sua cadeia de suprimentos.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper emerald">
+                        <i class="ti ti-arrows-left-right"></i>
+                    </div>
+                    <h3>Auditoria de Movimentações</h3>
+                    <p>Registro imutável de todas as entradas, saídas e ajustes manuais com timestamp e rastreabilidade de quem realizou a ação.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper purple">
+                        <i class="ti ti-shield-check"></i>
+                    </div>
+                    <h3>Controle de Acesso RBAC</h3>
+                    <p>Isolamento rigoroso de tenant (multi-lojista) e painel administrativo protegido para gestão granular de usuários e papéis.</p>
+                </div>
             </div>
         </section>
     </main>
+
+    <!-- Rodapé Corporativo -->
     <footer>
-        <p>&copy; 2024 SimpStock. Todos os direitos reservados.</p>
+        <p>&copy; 2024–2026 <strong>SimpStock</strong>. Todos os direitos reservados.</p>
+        <p>Projeto de Engenharia de Software desenvolvido por <strong>Welinton Thiago</strong> e <strong>Wesley</strong>.</p>
     </footer>
 
-    <!-- Apenas o script da landing page, sem verificação de login -->
-    <script src="src/Simpstock_script.js"></script>
+    <script src="src/Sistema_script.js"></script>
+    <script>
+        // Acesso direto ao Modo Demonstração a partir da Landing Page
+        document.getElementById('btnHeroDemo')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.inicializarDadosDemo) inicializarDadosDemo();
+            localStorage.setItem('token', 'demo-token-jwt-preview');
+            localStorage.setItem('usuarioId', '99');
+            localStorage.setItem('usuarioLogado', 'Lojista Demonstração');
+            localStorage.setItem('usuarioNome', 'Lojista Demonstração');
+            localStorage.setItem('usuarioEmail', 'demo@simpstock.com');
+            localStorage.setItem('isAdmin', 'true');
+            window.location.href = 'src/Tela_inicial.html';
+        });
+    </script>
 </body>
 </html>
