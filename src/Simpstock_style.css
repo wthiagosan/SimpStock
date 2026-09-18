@@ -102,7 +102,7 @@ body {
     backdrop-filter: blur(12px);
     position: fixed;
     top: 0; left: 0; right: 0;
-    z-index: 1000;
+    z-index: 1200;
     border-bottom: 1px solid var(--slate-200);
 }
 
@@ -526,22 +526,26 @@ footer strong {
    ============================================================ */
 .login-page-body {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 90px 1.5rem 40px;
+    padding: 100px 1.5rem 40px;
     background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    box-sizing: border-box;
 }
 
 .auth-container {
     background-color: var(--white);
     border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
     position: relative;
     overflow: hidden;
     width: 820px;
     max-width: 100%;
     min-height: 520px;
+    margin: auto 0;
+    z-index: 10;
 }
 
 .form-container {
@@ -684,7 +688,7 @@ footer strong {
     overflow: hidden;
     transition: all 0.6s ease-in-out;
     border-radius: 150px 0 0 100px;
-    z-index: 1000;
+    z-index: 50;
 }
 
 .auth-container.active .toggle-container {
@@ -812,10 +816,6 @@ footer strong {
 
     .navigation {
         padding: 0 1.5rem;
-    }
-
-    .auth-container {
-        min-height: 600px;
     }
 
     .cards-grid-3, .cards-grid-2 {
