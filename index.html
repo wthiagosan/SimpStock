@@ -156,17 +156,73 @@
     </footer>
 
     <script>
-        // Acesso direto ao Modo Demonstração a partir da Landing Page
-        document.getElementById('btnHeroDemo')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            localStorage.setItem('token', 'demo-token-jwt-preview');
-            localStorage.setItem('usuarioId', '99');
-            localStorage.setItem('usuarioLogado', 'Lojista Demonstração');
-            localStorage.setItem('usuarioNome', 'Lojista Demonstração');
-            localStorage.setItem('usuarioEmail', 'demo@simpstock.com');
-            localStorage.setItem('isAdmin', 'true');
-            window.location.href = 'src/Tela_inicial.html';
-        });
+        // Verificação e adaptação dinâmica para usuário já autenticado
+        (function() {
+            const token = localStorage.getItem("token");
+            if (token) {
+                const nome = localStorage.getItem("usuarioNome") || localStorage.getItem("usuarioLogado") || "Lojista";
+                
+                // 1. Adapta botão da Navbar
+                const btnNav = document.querySelector(".nav-btn-login");
+                if (btnNav) {
+                    btnNav.href = "src/Tela_inicial.html";
+                    btnNav.innerHTML = '<i class="ti ti-layout-dashboard"></i> Ir para o Painel';
+                    btnNav.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                    
+                    const navMenu = btnNav.closest(".nav-menu");
+                    if (navMenu && !document.getElementById("btnNavSairHome")) {
+                        const liSair = document.createElement("li");
+                        liSair.className = "nav-item";
+                        liSair.id = "btnNavSairHome";
+                        liSair.innerHTML = `<a href="#" id="linkLogoutHome" style="color: var(--slate-300); display: inline-flex; align-items: center; gap: 5px; font-weight: 500;"><i class="ti ti-logout"></i> Sair</a>`;
+                        navMenu.appendChild(liSair);
+
+                        document.getElementById("linkLogoutHome")?.addEventListener("click", function(e) {
+                            e.preventDefault();
+                            localStorage.removeItem("token");
+                            localStorage.removeItem("usuarioLogado");
+                            localStorage.removeItem("usuarioNome");
+                            localStorage.removeItem("usuarioEmail");
+                            localStorage.removeItem("usuarioId");
+                            localStorage.removeItem("isAdmin");
+                            localStorage.removeItem("idProdutoEdicao");
+                            localStorage.removeItem("offline_mode");
+                            window.location.reload();
+                        });
+                    }
+                }
+
+                // 2. Adapta Hero Buttons
+                const btnPrimary = document.querySelector(".btn-hero-primary");
+                if (btnPrimary) {
+                    btnPrimary.href = "src/Tela_inicial.html";
+                    btnPrimary.innerHTML = `<i class="ti ti-layout-dashboard"></i> Acessar Meu Painel (${nome})`;
+                }
+
+                const btnDemo = document.getElementById("btnHeroDemo");
+                if (btnDemo) {
+                    btnDemo.href = "src/tabela_principal.html";
+                    btnDemo.innerHTML = `<i class="ti ti-package"></i> Ver Estoque de Produtos`;
+                    btnDemo.addEventListener("click", function(e) {
+                        e.preventDefault();
+                        window.location.href = "src/tabela_principal.html";
+                    });
+                }
+            } else {
+                // Acesso direto ao Modo Demonstração a partir da Landing Page (quando deslogado)
+                document.getElementById('btnHeroDemo')?.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.setItem('token', 'demo-token-jwt-preview');
+                    localStorage.setItem('usuarioId', '99');
+                    localStorage.setItem('usuarioLogado', 'Lojista Demonstração');
+                    localStorage.setItem('usuarioNome', 'Lojista Demonstração');
+                    localStorage.setItem('usuarioEmail', 'demo@simpstock.com');
+                    localStorage.setItem('isAdmin', 'true');
+                    localStorage.setItem('offline_mode', 'true');
+                    window.location.href = 'src/Tela_inicial.html';
+                });
+            }
+        })();
     </script>
 </body>
 </html>

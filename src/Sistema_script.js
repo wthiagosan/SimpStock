@@ -16,7 +16,8 @@ const API_URL = (() => {
 })();
 
 function isDemoMode() {
-    return localStorage.getItem("token") === "demo-token-jwt-preview";
+    const token = localStorage.getItem("token") || "";
+    return token.startsWith("demo-token-") || token === "demo-token-jwt-preview" || localStorage.getItem("offline_mode") === "true";
 }
 
 // Inicializa dados de demonstração caso o usuário teste via GitHub Pages sem backend ativo
@@ -33,10 +34,10 @@ function inicializarDadosDemo() {
     }
     if (!localStorage.getItem("demo_usuarios")) {
         const usuariosIniciais = [
-            { id: 1, nome: "Administrador Master", email: "admin@simpstock.com", is_admin: true, criado_em: "2026-09-09 20:00:00" },
-            { id: 99, nome: "Lojista Demonstração", email: "demo@simpstock.com", is_admin: true, criado_em: "2026-09-09 21:00:00" },
-            { id: 3, nome: "Carlos Varejo", email: "carlos@varejo.com", is_admin: false, criado_em: "2026-09-10 10:30:00" },
-            { id: 4, nome: "Mariana Logística", email: "mariana@distribuidora.com", is_admin: false, criado_em: "2026-09-12 14:15:00" }
+            { id: 1, nome: "Administrador Master", email: "admin@simpstock.com", senha: "admin", is_admin: true, criado_em: "2026-09-09 20:00:00" },
+            { id: 99, nome: "Lojista Demonstração", email: "demo@simpstock.com", senha: "demo", is_admin: true, criado_em: "2026-09-09 21:00:00" },
+            { id: 3, nome: "Carlos Varejo", email: "carlos@varejo.com", senha: "123", is_admin: false, criado_em: "2026-09-10 10:30:00" },
+            { id: 4, nome: "Mariana Logística", email: "mariana@distribuidora.com", senha: "123", is_admin: false, criado_em: "2026-09-12 14:15:00" }
         ];
         localStorage.setItem("demo_usuarios", JSON.stringify(usuariosIniciais));
     }
@@ -67,7 +68,7 @@ function getIsAdmin() {
     return localStorage.getItem("isAdmin") === "true";
 }
 
-// --- TOASTS MODERNOS ---
+// --- TOASTS MODERNOS (ALTO CONTRASTE) ---
 function mostrarAlerta(mensagem, tipo = 'success') {
     let container = document.getElementById('toast-container');
     if (!container) {
@@ -79,15 +80,25 @@ function mostrarAlerta(mensagem, tipo = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${tipo}`;
     
-    let icone = tipo === 'success' ? '✅ ' : tipo === 'error' ? '❌ ' : '⚠️ ';
-    toast.innerText = icone + mensagem;
+    let iconeHtml = '';
+    if (tipo === 'success') {
+        iconeHtml = '<i class="ti ti-circle-check" style="font-size: 1.3rem; color: #10b981; flex-shrink: 0;"></i>';
+    } else if (tipo === 'error') {
+        iconeHtml = '<i class="ti ti-circle-x" style="font-size: 1.3rem; color: #ef4444; flex-shrink: 0;"></i>';
+    } else if (tipo === 'warning') {
+        iconeHtml = '<i class="ti ti-alert-triangle" style="font-size: 1.3rem; color: #f59e0b; flex-shrink: 0;"></i>';
+    } else {
+        iconeHtml = '<i class="ti ti-info-circle" style="font-size: 1.3rem; color: #3b82f6; flex-shrink: 0;"></i>';
+    }
+    
+    toast.innerHTML = `${iconeHtml} <span style="flex: 1;">${escaparHTML(mensagem)}</span>`;
 
     container.appendChild(toast);
 
     setTimeout(() => {
         toast.classList.add('fade-out');
-        toast.addEventListener('animationend', () => toast.remove());
-    }, 3200);
+        setTimeout(() => toast.remove(), 350);
+    }, 3500);
 }
 
 function escaparHTML(str) {
@@ -108,6 +119,7 @@ function logout() {
     localStorage.removeItem("usuarioId");
     localStorage.removeItem("isAdmin");
     localStorage.removeItem("idProdutoEdicao");
+    localStorage.removeItem("offline_mode");
     window.location.href = getLoginUrl();
 }
 
@@ -129,6 +141,34 @@ function verificarAutenticacao() {
     return true;
 }
 
+// --- AJUSTA LINKS PÚBLICOS QUANDO O USUÁRIO JÁ ESTÁ AUTENTICADO ---
+function ajustarNavegacaoPublica() {
+    const token = getAuthToken();
+    if (!token) return;
+
+    const path = window.location.pathname.toLowerCase();
+    const isInsideSrc = path.includes("/src/") || path.includes("\\src\\");
+    const targetDashboard = isInsideSrc ? "Tela_inicial.html" : "src/Tela_inicial.html";
+
+    // 1. Atualiza botões da barra de navegação pública (index, sobre, ajuda)
+    const btnLoginNav = document.querySelector(".nav-btn-login");
+    if (btnLoginNav) {
+        btnLoginNav.href = targetDashboard;
+        btnLoginNav.innerHTML = '<i class="ti ti-layout-dashboard"></i> Ir para o Painel';
+        btnLoginNav.style.background = "linear-gradient(135deg, #10b981, #059669)";
+
+        // Adiciona botão Sair ao lado se ainda não existir
+        const navMenu = btnLoginNav.closest(".nav-menu");
+        if (navMenu && !document.getElementById("btnNavSairDinamico")) {
+            const liSair = document.createElement("li");
+            liSair.className = "nav-item";
+            liSair.id = "btnNavSairDinamico";
+            liSair.innerHTML = `<a href="#" onclick="logout(); return false;" style="color: var(--slate-300); display: inline-flex; align-items: center; gap: 5px; font-weight: 500;"><i class="ti ti-logout"></i> Sair</a>`;
+            navMenu.appendChild(liSair);
+        }
+    }
+}
+
 // --- INICIALIZAÇÃO GERAL ---
 document.addEventListener("DOMContentLoaded", () => {
     const path = window.location.pathname.toLowerCase();
@@ -143,15 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
         || path.includes("sobre_n")
         || path.includes("ajuda.html");
 
-    // Ajusta menu da página de ajuda se logado
-    const navAjuda = document.getElementById("navAjuda");
-    if (navAjuda && getAuthToken()) {
-        navAjuda.innerHTML = `
-            <li class="nav-item"><a href="../index.html">Início</a></li>
-            <li class="nav-item"><a href="Tela_inicial.html"><strong>Dashboard</strong></a></li>
-            <li class="nav-item"><a href="#" onclick="logout(); return false;"><strong>Sair</strong></a></li>
-        `;
+    // Se estiver na tela de Login e já possuir sessão ativa, redireciona para o Painel
+    if (path.includes("login.html") && getAuthToken() && !window.location.search.includes("trocar=true")) {
+        window.location.replace("Tela_inicial.html");
+        return;
     }
+
+    // Ajusta navegação de páginas públicas se o usuário estiver com sessão ativa
+    ajustarNavegacaoPublica();
 
     if (!isPublic) {
         if (!verificarAutenticacao()) return;
@@ -248,6 +287,7 @@ function configurarOlhoSenha(iconId, inputId) {
 // --- AUTENTICAÇÃO ---
 function configurarLogin() {
     const formLogin = document.getElementById("formLogin");
+    if (!formLogin) return;
     
     // Botão de Demonstração Rápida (Live Demo)
     const btnDemo = document.getElementById("btnDemoLogin");
@@ -260,6 +300,7 @@ function configurarLogin() {
             localStorage.setItem("usuarioEmail", "demo@simpstock.com");
             localStorage.setItem("usuarioId", "99");
             localStorage.setItem("isAdmin", "true");
+            localStorage.setItem("offline_mode", "true");
             mostrarAlerta("Modo Demonstração ativado! Acessando painel...", "success");
             setTimeout(() => { window.location.href = "Tela_inicial.html"; }, 800);
         });
@@ -269,6 +310,8 @@ function configurarLogin() {
         e.preventDefault();
         const email = document.getElementById("emailLogin").value.trim();
         const senha = document.getElementById("senhaLogin").value;
+
+        // Tenta autenticação via API caso haja backend ativo
         try {
             const res = await fetch(`${API_URL}/login`, {
                 method: "POST",
@@ -282,19 +325,54 @@ function configurarLogin() {
                 localStorage.setItem("usuarioNome", data.usuario);
                 localStorage.setItem("usuarioId", data.usuario_id);
                 localStorage.setItem("isAdmin", data.is_admin ? "true" : "false");
+                localStorage.removeItem("offline_mode");
                 mostrarAlerta("Login autorizado com sucesso!", "success");
-                setTimeout(() => { window.location.href = "Tela_inicial.html"; }, 1000);
+                setTimeout(() => { window.location.href = "Tela_inicial.html"; }, 900);
+                return;
             } else { 
                 mostrarAlerta(data.message || "Email ou senha incorretos.", "error"); 
+                return;
             }
         } catch (erro) { 
-            mostrarAlerta("Servidor indisponível. Use o botão 'Modo Demonstração' para testar online.", "warning"); 
+            // Fallback transparente para GitHub Pages / Offline
+            inicializarDadosDemo();
+            let usuarios = JSON.parse(localStorage.getItem("demo_usuarios") || "[]");
+            const usuario = usuarios.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (!usuario) {
+                mostrarAlerta("E-mail não cadastrado. Crie uma conta ou use o Modo Demonstração.", "error");
+                return;
+            }
+
+            const senhaValida = !usuario.senha 
+                || usuario.senha === senha 
+                || (usuario.email.toLowerCase() === "demo@simpstock.com")
+                || (usuario.email.toLowerCase() === "admin@simpstock.com" && (senha === "admin" || senha === "admin123"));
+
+            if (!senhaValida) {
+                mostrarAlerta("Senha incorreta. Verifique suas credenciais.", "error");
+                return;
+            }
+
+            localStorage.setItem("token", `demo-token-jwt-${usuario.id}`);
+            localStorage.setItem("usuarioLogado", usuario.nome);
+            localStorage.setItem("usuarioNome", usuario.nome);
+            localStorage.setItem("usuarioEmail", usuario.email);
+            localStorage.setItem("usuarioId", String(usuario.id));
+            localStorage.setItem("isAdmin", usuario.is_admin ? "true" : "false");
+            localStorage.setItem("offline_mode", "true");
+
+            mostrarAlerta(`Bem-vindo, ${usuario.nome}! Acessando painel...`, "success");
+            setTimeout(() => { window.location.href = "Tela_inicial.html"; }, 800);
         }
     });
 }
 
 function configurarCadastro() {
-    document.getElementById("formCadastro").addEventListener("submit", async (e) => {
+    const formCadastro = document.getElementById("formCadastro");
+    if (!formCadastro) return;
+
+    formCadastro.addEventListener("submit", async (e) => {
         e.preventDefault();
         const nome = document.getElementById("nomeCadastro").value.trim();
         const email = document.getElementById("emailCadastro").value.trim();
@@ -302,9 +380,11 @@ function configurarCadastro() {
 
         const regexSenha = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
         if (!regexSenha.test(senha)) {
-            mostrarAlerta("Senha inválida! Regras: Mínimo 6 caracteres, letras e números.", "warning");
+            mostrarAlerta("Senha inválida! Regras: Mínimo 6 caracteres, com letras e números.", "warning");
             return;
         }
+
+        // Tenta cadastrar via API caso haja backend ativo
         try {
             const res = await fetch(`${API_URL}/register`, {
                 method: "POST",
@@ -315,12 +395,54 @@ function configurarCadastro() {
             if (res.ok) {
                 mostrarAlerta("Conta criada com sucesso! Faça login para continuar.", "success");
                 const btnLogin = document.getElementById('login');
-                if (btnLogin) setTimeout(() => { btnLogin.click(); }, 1000);
+                if (btnLogin) {
+                    setTimeout(() => { 
+                        btnLogin.click(); 
+                        const elEmail = document.getElementById("emailLogin");
+                        if (elEmail) elEmail.value = email;
+                    }, 1000);
+                }
+                return;
             } else { 
                 mostrarAlerta(data.message || "Erro ao cadastrar usuário.", "error"); 
+                return;
             }
         } catch (erro) { 
-            mostrarAlerta("Erro de conexão ao servidor.", "error"); 
+            // Fallback transparente para GitHub Pages / Offline
+            inicializarDadosDemo();
+            let usuarios = JSON.parse(localStorage.getItem("demo_usuarios") || "[]");
+            const emailJaExiste = usuarios.some(u => u.email.toLowerCase() === email.toLowerCase());
+            
+            if (emailJaExiste) {
+                mostrarAlerta("Este e-mail já está cadastrado no sistema!", "warning");
+                return;
+            }
+
+            const novoUsuario = {
+                id: Date.now(),
+                nome: nome,
+                email: email,
+                senha: senha,
+                is_admin: false,
+                criado_em: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            };
+            usuarios.push(novoUsuario);
+            localStorage.setItem("demo_usuarios", JSON.stringify(usuarios));
+
+            mostrarAlerta("Conta cadastrada com sucesso! Faça login para acessar.", "success");
+            
+            const btnLogin = document.getElementById('login');
+            const container = document.getElementById('container');
+            if (container) container.classList.remove('active');
+            if (btnLogin) btnLogin.click();
+
+            const elEmail = document.getElementById("emailLogin");
+            if (elEmail) elEmail.value = email;
+            const elSenha = document.getElementById("senhaLogin");
+            if (elSenha) {
+                elSenha.value = "";
+                elSenha.focus();
+            }
         }
     });
 }
@@ -761,11 +883,11 @@ async function iniciarPaginaCadastro() {
                 produtos = produtos.map(p => p.id == id ? { ...p, ...produtoData } : p);
             } else {
                 produtoData.id = Date.now();
-                produtoData.usuario_id = 99;
+                produtoData.usuario_id = getUsuarioId() || 99;
                 produtos.push(produtoData);
             }
             localStorage.setItem("demo_produtos", JSON.stringify(produtos));
-            mostrarAlerta("Produto salvo no modo demonstração com sucesso!", "success");
+            mostrarAlerta("Produto salvo com sucesso!", "success");
             setTimeout(() => { window.location.href = "tabela_principal.html"; }, 900);
             return;
         }
