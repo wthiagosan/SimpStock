@@ -108,14 +108,22 @@ function logout() {
     localStorage.removeItem("usuarioId");
     localStorage.removeItem("isAdmin");
     localStorage.removeItem("idProdutoEdicao");
-    window.location.href = "Login.html";
+    window.location.href = getLoginUrl();
+}
+
+function getLoginUrl() {
+    const path = window.location.pathname.toLowerCase();
+    if (path.endsWith("/") || path.endsWith("/simpstock") || path.endsWith("/simpstock/") || path.includes("index.html")) {
+        return "src/Login.html";
+    }
+    return "Login.html";
 }
 
 function verificarAutenticacao() {
     const token = getAuthToken();
     if (!token) {
         mostrarAlerta("Você precisa fazer login para acessar esta página.", "warning");
-        setTimeout(() => { window.location.href = "Login.html"; }, 1500);
+        setTimeout(() => { window.location.href = getLoginUrl(); }, 1500);
         return false;
     }
     return true;
@@ -123,8 +131,17 @@ function verificarAutenticacao() {
 
 // --- INICIALIZAÇÃO GERAL ---
 document.addEventListener("DOMContentLoaded", () => {
-    const path = window.location.pathname;
-    const isPublic = path.includes("Login.html") || path.includes("index.html") || path.includes("Sobre_n") || path.includes("Ajuda.html");
+    const path = window.location.pathname.toLowerCase();
+    const isPublic = path === ""
+        || path === "/"
+        || path.endsWith("/")
+        || path.endsWith("/simpstock")
+        || path.endsWith("/simpstock/")
+        || path.includes("index.html")
+        || path.includes("login.html")
+        || path.includes("sobre_nos.html")
+        || path.includes("sobre_n")
+        || path.includes("ajuda.html");
 
     // Ajusta menu da página de ajuda se logado
     const navAjuda = document.getElementById("navAjuda");

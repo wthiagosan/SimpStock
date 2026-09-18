@@ -155,12 +155,10 @@
         <p>Projeto de Engenharia de Software desenvolvido por <strong>Welinton Thiago</strong> e <strong>Wesley</strong>.</p>
     </footer>
 
-    <script src="src/Sistema_script.js"></script>
     <script>
         // Acesso direto ao Modo Demonstração a partir da Landing Page
         document.getElementById('btnHeroDemo')?.addEventListener('click', function(e) {
             e.preventDefault();
-            if (window.inicializarDadosDemo) inicializarDadosDemo();
             localStorage.setItem('token', 'demo-token-jwt-preview');
             localStorage.setItem('usuarioId', '99');
             localStorage.setItem('usuarioLogado', 'Lojista Demonstração');
