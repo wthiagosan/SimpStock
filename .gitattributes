@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Linguist overrides to display primary backend language (Python) correctly on GitHub
+*.html linguist-detectable=false
+
