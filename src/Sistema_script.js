@@ -581,22 +581,21 @@ window.ajustarQuantidadeRapida = async function(produtoId, delta) {
     }
 
     try {
-        // Busca produto para obter dados atuais
-        const resList = await fetch(`${API_URL}/produtos`, { headers: getAuthHeaders() });
-        if (!resList.ok) throw new Error("Falha ao consultar item");
-        const prods = await resList.json();
-        const prod = prods.find(p => p.id == produtoId);
-        if (!prod) return;
-
-        const novaQtd = Math.max(0, (parseInt(prod.quantidade, 10) || 0) + delta);
-        const updateRes = await fetch(`${API_URL}/produtos/${produtoId}`, {
-            method: "PUT",
+        const tipo = delta > 0 ? "entrada" : "saida";
+        const qtdAbs = Math.abs(delta);
+        const updateRes = await fetch(`${API_URL}/produtos/${produtoId}/movimentar`, {
+            method: "POST",
             headers: getAuthHeaders(),
-            body: JSON.stringify({ ...prod, quantidade: novaQtd })
+            body: JSON.stringify({
+                tipo: tipo,
+                quantidade: qtdAbs,
+                motivo: delta > 0 ? "Entrada rápida via interface" : "Saída rápida via interface"
+            })
         });
 
         if (updateRes.ok) {
-            mostrarAlerta(`Quantidade de '${prod.nome}' atualizada para ${novaQtd}!`, "success");
+            const resData = await updateRes.json();
+            mostrarAlerta(resData.message || `Estoque atualizado com sucesso!`, "success");
             if (document.getElementById("dashboardRecentTableBody")) carregarDashboardKPIs();
             if (document.getElementById("productTable")) iniciarPaginaTabela();
         } else {

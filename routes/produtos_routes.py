@@ -1,4 +1,4 @@
-﻿import sqlite3
+import sqlite3
 from flask import request, jsonify, g
 from . import produtos_bp
 from database import get_db, row_to_dict, rows_to_list
@@ -62,6 +62,7 @@ def add_produto():
 
     db = get_db()
     try:
+        db.execute("BEGIN IMMEDIATE")
         cursor = db.execute(
             '''INSERT INTO produtos
                (usuario_id, nome, marca, validade, codigo, quantidade, referencia, endereco)
@@ -87,9 +88,12 @@ def add_produto():
     except sqlite3.IntegrityError as e:
         db.rollback()
         err_msg = str(e).lower()
-        if 'unique constraint failed' in err_msg and 'codigo' in err_msg:
+        if 'unique constraint failed' in err_msg and ('codigo' in err_msg or 'produtos' in err_msg):
             return jsonify({'message': f'Já existe um produto com o código SKU \"{codigo}\".'}), 409
-        return jsonify({'message': f'Erro de integridade no banco de dados: {e}'}), 400
+        return jsonify({'message': 'Erro de integridade ao processar o cadastro do produto.'}), 400
+    except Exception:
+        db.rollback()
+        return jsonify({'message': 'Erro interno ao processar o cadastro do produto.'}), 500
 
 
 @produtos_bp.route('/produtos/<int:id_produto>', methods=['PUT'])
@@ -98,40 +102,47 @@ def update_produto(id_produto):
     data = request.get_json() or {}
     db = get_db()
 
-    produto = row_to_dict(db.execute(
-        'SELECT * FROM produtos WHERE id = ?', (id_produto,)
-    ).fetchone())
-
-    if not produto:
-        return jsonify({'message': 'Produto não encontrado.'}), 404
-
-    # Regra de autorização: apenas admin ou dono do produto pode alterar
-    if not g.user.get('is_admin') and produto['usuario_id'] != g.user['id']:
-        return jsonify({'message': 'Sem permissão para alterar produtos de outro lojista.'}), 403
-
-    quantidade_anterior = produto['quantidade']
-    nova_quantidade = data.get('quantidade', quantidade_anterior)
-
     try:
-        nova_quantidade = int(nova_quantidade)
-    except (ValueError, TypeError):
-        return jsonify({'message': 'A quantidade deve ser um número inteiro.'}), 400
+        db.execute("BEGIN IMMEDIATE")
 
-    if nova_quantidade < 0:
-        return jsonify({'message': 'A quantidade não pode ser negativa.'}), 400
+        produto = row_to_dict(db.execute(
+            'SELECT * FROM produtos WHERE id = ?', (id_produto,)
+        ).fetchone())
 
-    nome = data.get('nome', produto['nome'])
-    marca = data.get('marca', produto['marca'])
-    validade = data.get('validade', produto['validade']) or None
-    codigo = data.get('codigo', produto['codigo'])
-    referencia = data.get('referencia', produto['referencia'])
-    endereco = data.get('endereco', produto['endereco'])
+        if not produto:
+            db.rollback()
+            return jsonify({'message': 'Produto não encontrado.'}), 404
 
-    try:
+        # Regra de autorização: apenas admin ou dono do produto pode alterar
+        if not g.user.get('is_admin') and produto['usuario_id'] != g.user['id']:
+            db.rollback()
+            return jsonify({'message': 'Sem permissão para alterar produtos de outro lojista.'}), 403
+
+        quantidade_anterior = produto['quantidade']
+        nova_quantidade = data.get('quantidade', quantidade_anterior)
+
+        try:
+            nova_quantidade = int(nova_quantidade)
+        except (ValueError, TypeError):
+            db.rollback()
+            return jsonify({'message': 'A quantidade deve ser um número inteiro.'}), 400
+
+        if nova_quantidade < 0:
+            db.rollback()
+            return jsonify({'message': 'A quantidade não pode ser negativa.'}), 400
+
+        nome = data.get('nome', produto['nome'])
+        marca = data.get('marca', produto['marca'])
+        validade = data.get('validade', produto['validade']) or None
+        codigo = data.get('codigo', produto['codigo'])
+        referencia = data.get('referencia', produto['referencia'])
+        endereco = data.get('endereco', produto['endereco'])
+
         db.execute(
             '''UPDATE produtos
                SET nome = ?, marca = ?, validade = ?, codigo = ?,
                    quantidade = ?, referencia = ?, endereco = ?,
+                   versao = versao + 1,
                    atualizado_em = CURRENT_TIMESTAMP
                WHERE id = ?''',
             (nome, marca, validade, codigo, nova_quantidade, referencia, endereco, id_produto)
@@ -156,7 +167,97 @@ def update_produto(id_produto):
 
     except sqlite3.IntegrityError as e:
         db.rollback()
-        return jsonify({'message': f'Erro ao atualizar produto: {e}'}), 409
+        err_msg = str(e).lower()
+        if 'unique constraint failed' in err_msg and ('codigo' in err_msg or 'produtos' in err_msg):
+            return jsonify({'message': f'Já existe um produto com o código SKU \"{codigo}\".'}), 409
+        if 'check constraint failed' in err_msg:
+            return jsonify({'message': 'A quantidade não pode ser negativa.'}), 400
+        return jsonify({'message': 'Erro de integridade ao atualizar o produto.'}), 400
+    except Exception:
+        db.rollback()
+        return jsonify({'message': 'Erro interno ao atualizar produto.'}), 500
+
+
+@produtos_bp.route('/produtos/<int:id_produto>/movimentar', methods=['POST'])
+@token_required
+def movimentar_produto(id_produto):
+    """Executa entrada ou saída de estoque atômica com trava imediata de concorrência e auditoria."""
+    data = request.get_json() or {}
+    tipo = (data.get('tipo') or '').strip().lower()
+    motivo = (data.get('motivo') or '').strip() or 'Movimentação operacional'
+
+    if tipo not in ('entrada', 'saida'):
+        return jsonify({'message': "Tipo de movimentação inválido. Deve ser 'entrada' ou 'saida'."}), 400
+
+    try:
+        quantidade = int(data.get('quantidade', 0))
+    except (ValueError, TypeError):
+        return jsonify({'message': 'A quantidade deve ser um número inteiro válido.'}), 400
+
+    if quantidade <= 0:
+        return jsonify({'message': 'A quantidade deve ser estritamente maior que zero.'}), 400
+
+    db = get_db()
+    try:
+        db.execute("BEGIN IMMEDIATE")
+
+        produto = row_to_dict(db.execute(
+            'SELECT * FROM produtos WHERE id = ?', (id_produto,)
+        ).fetchone())
+
+        if not produto:
+            db.rollback()
+            return jsonify({'message': 'Produto não encontrado.'}), 404
+
+        if not g.user.get('is_admin') and produto['usuario_id'] != g.user['id']:
+            db.rollback()
+            return jsonify({'message': 'Sem permissão para movimentar produtos de outro lojista.'}), 403
+
+        qtd_anterior = produto['quantidade']
+
+        if tipo == 'saida':
+            if qtd_anterior < quantidade:
+                db.rollback()
+                return jsonify({
+                    'message': f'Saldo insuficiente de estoque para esta saída. Disponível: {qtd_anterior}, Solicitado: {quantidade}.',
+                    'disponivel': qtd_anterior
+                }), 400
+            nova_qtd = qtd_anterior - quantidade
+        else:
+            nova_qtd = qtd_anterior + quantidade
+
+        db.execute(
+            '''UPDATE produtos
+               SET quantidade = ?, versao = versao + 1, atualizado_em = CURRENT_TIMESTAMP
+               WHERE id = ?''',
+            (nova_qtd, id_produto)
+        )
+
+        db.execute(
+            '''INSERT INTO movimentacoes (produto_id, usuario_id, tipo, quantidade, motivo)
+               VALUES (?, ?, ?, ?, ?)''',
+            (id_produto, g.user['id'], tipo, quantidade, motivo)
+        )
+
+        db.commit()
+
+        produto_atualizado = row_to_dict(db.execute(
+            'SELECT * FROM produtos WHERE id = ?', (id_produto,)
+        ).fetchone())
+
+        return jsonify({
+            'message': f'Movimentação de {tipo} registrada com sucesso!',
+            'produto': produto_atualizado,
+            'quantidade_anterior': qtd_anterior,
+            'nova_quantidade': nova_qtd
+        }), 200
+
+    except sqlite3.IntegrityError:
+        db.rollback()
+        return jsonify({'message': 'Violação de integridade ao registrar movimentação.'}), 400
+    except Exception:
+        db.rollback()
+        return jsonify({'message': 'Erro interno ao registrar movimentação.'}), 500
 
 
 @produtos_bp.route('/produtos/<int:id_produto>', methods=['DELETE'])

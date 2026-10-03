@@ -1,4 +1,4 @@
-﻿from flask import jsonify, g
+from flask import jsonify, g
 from . import admin_bp
 from database import get_db, rows_to_list
 from auth import admin_required
@@ -29,9 +29,18 @@ def delete_usuario(id_usuario):
         return jsonify({'message': 'Operação negada! Não é possível excluir seu próprio usuário administrador.'}), 400
 
     db = get_db()
-    cursor = db.execute('DELETE FROM usuarios WHERE id = ?', (id_usuario,))
-    if cursor.rowcount == 0:
-        return jsonify({'message': 'Usuário não encontrado.'}), 404
+    try:
+        cursor = db.execute('DELETE FROM usuarios WHERE id = ?', (id_usuario,))
+        if cursor.rowcount == 0:
+            return jsonify({'message': 'Usuário não encontrado.'}), 404
 
-    db.commit()
-    return jsonify({'message': 'Usuário removido com sucesso!'}), 200
+        db.commit()
+        return jsonify({'message': 'Usuário removido com sucesso!'}), 200
+    except Exception as e:
+        db.rollback()
+        import sqlite3
+        if isinstance(e, sqlite3.IntegrityError):
+            return jsonify({
+                'message': 'Não é possível excluir usuário que possui produtos ou movimentações registradas.'
+            }), 409
+        return jsonify({'message': 'Erro interno ao tentar remover usuário.'}), 500
