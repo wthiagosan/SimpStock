@@ -1,4 +1,4 @@
-﻿from flask import request, jsonify, g
+from flask import request, jsonify, g
 from . import movimentacoes_bp
 from database import get_db, rows_to_list
 from auth import token_required
@@ -39,3 +39,16 @@ def get_movimentacoes():
 
     rows = db.execute(base_query, params).fetchall()
     return jsonify(rows_to_list(rows)), 200
+
+
+@movimentacoes_bp.route('/movimentacoes', methods=['POST'])
+@token_required
+def post_movimentacao():
+    """Endpoint RESTful alternativo para registrar movimentação de estoque de forma atômica."""
+    data = request.get_json() or {}
+    produto_id = data.get('produto_id')
+    if not produto_id:
+        return jsonify({'message': 'produto_id é obrigatório para registrar movimentação.'}), 400
+
+    from .produtos_routes import movimentar_produto
+    return movimentar_produto(int(produto_id))

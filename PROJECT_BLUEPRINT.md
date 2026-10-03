@@ -17,19 +17,21 @@ CREATE TABLE usuarios (
     criado_em TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de Produtos (Inventário)
+-- Tabela de Produtos (Inventário com OCC e Multi-Tenant SKU)
 CREATE TABLE produtos (
     id            INTEGER      PRIMARY KEY AUTOINCREMENT,
     usuario_id    INTEGER      NOT NULL,
     nome          VARCHAR(150) NOT NULL,
     marca         VARCHAR(100) NOT NULL,
     validade      DATE         NULL,
-    codigo        VARCHAR(80)  NOT NULL UNIQUE,
-    quantidade    INTEGER      NOT NULL DEFAULT 0,
+    codigo        VARCHAR(80)  NOT NULL,
+    quantidade    INTEGER      NOT NULL DEFAULT 0 CHECK (quantidade >= 0),
     referencia    VARCHAR(80)  NULL,
     endereco      VARCHAR(200) NULL,
+    versao        INTEGER      NOT NULL DEFAULT 1,
     criado_em     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_usuario_codigo UNIQUE (usuario_id, codigo),
     FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -39,12 +41,19 @@ CREATE TABLE movimentacoes (
     produto_id INTEGER      NOT NULL,
     usuario_id INTEGER      NOT NULL,
     tipo       VARCHAR(10)  NOT NULL CHECK (tipo IN ('entrada', 'saida')),
-    quantidade INTEGER      NOT NULL,
+    quantidade INTEGER      NOT NULL CHECK (quantidade > 0),
     motivo     VARCHAR(255) NULL,
     criado_em  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (produto_id) REFERENCES produtos (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- Índices de Alta Performance
+CREATE INDEX idx_produtos_usuario ON produtos (usuario_id);
+CREATE INDEX idx_produtos_codigo ON produtos (usuario_id, codigo);
+CREATE INDEX idx_movimentacoes_produto ON movimentacoes (produto_id);
+CREATE INDEX idx_movimentacoes_usuario ON movimentacoes (usuario_id);
+CREATE INDEX idx_movimentacoes_criado_em ON movimentacoes (criado_em);
 ```
 
 ---
