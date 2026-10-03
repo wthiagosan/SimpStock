@@ -3,7 +3,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from config import Config
 from database import close_db, init_db
-from routes import auth_bp, produtos_bp, admin_bp, movimentacoes_bp
+from routes import auth_bp, produtos_bp, admin_bp, movimentacoes_bp, superadmin_bp, organizations_bp
 
 
 def create_app(config_class=Config):
@@ -21,6 +21,8 @@ def create_app(config_class=Config):
     app.register_blueprint(produtos_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(movimentacoes_bp)
+    app.register_blueprint(superadmin_bp)
+    app.register_blueprint(organizations_bp)
 
     @app.route('/', methods=['GET'])
     def health_check():
