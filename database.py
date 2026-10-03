@@ -162,11 +162,28 @@ def init_db(db_path=None):
                 REFERENCES usuarios (id) ON DELETE SET NULL ON UPDATE CASCADE
         );
 
+        CREATE TABLE IF NOT EXISTS suporte_chamados (
+            id              INTEGER      NOT NULL,
+            usuario_id      INTEGER      NOT NULL,
+            organization_id INTEGER          NULL,
+            tipo            VARCHAR(80)  NOT NULL DEFAULT 'duvida',
+            mensagem        TEXT         NOT NULL,
+            status          VARCHAR(30)  NOT NULL DEFAULT 'aberto',
+            criado_em       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT pk_suporte_chamados PRIMARY KEY (id AUTOINCREMENT),
+            CONSTRAINT fk_sup_cham_user FOREIGN KEY (usuario_id)
+                REFERENCES usuarios (id) ON DELETE CASCADE ON UPDATE CASCADE,
+            CONSTRAINT fk_sup_cham_org FOREIGN KEY (organization_id)
+                REFERENCES organizations (id) ON DELETE SET NULL ON UPDATE CASCADE
+        );
+
         CREATE INDEX IF NOT EXISTS idx_produtos_usuario ON produtos (usuario_id);
         CREATE INDEX IF NOT EXISTS idx_produtos_codigo ON produtos (usuario_id, codigo);
         CREATE INDEX IF NOT EXISTS idx_movimentacoes_produto ON movimentacoes (produto_id);
         CREATE INDEX IF NOT EXISTS idx_movimentacoes_usuario ON movimentacoes (usuario_id);
         CREATE INDEX IF NOT EXISTS idx_movimentacoes_criado_em ON movimentacoes (criado_em);
+        CREATE INDEX IF NOT EXISTS idx_suporte_chamados_org ON suporte_chamados (organization_id);
+        CREATE INDEX IF NOT EXISTS idx_suporte_chamados_user ON suporte_chamados (usuario_id);
     ''')
 
     # Migrações seguras de colunas em tabelas existentes

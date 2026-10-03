@@ -3,7 +3,7 @@ import sqlite3
 from flask import request, jsonify, g
 from . import superadmin_bp
 from database import get_db, row_to_dict, rows_to_list, log_audit_event
-from auth import superadmin_required, generate_token
+from auth import superadmin_required, generate_token, token_required
 
 
 def _slugify(text: str) -> str:
@@ -53,6 +53,7 @@ def get_overview():
 
 
 @superadmin_bp.route('/superadmin/organizations', methods=['GET'])
+@superadmin_bp.route('/admin/organizations', methods=['GET'])
 @superadmin_required
 def list_organizations():
     """Lista todas as organizações da plataforma com contadores e valoração agregada."""
@@ -70,6 +71,10 @@ def list_organizations():
     for r in rows:
         d = dict(r)
         d['ativo'] = bool(d['ativo'])
+        d['status'] = 'active' if d['ativo'] else 'inactive'
+        d['name'] = d['nome']
+        d['document'] = d['cnpj_ou_documento']
+        d['created_at'] = d['criado_em']
         d['valor_estoque'] = round(float(d['valor_estoque']), 2)
         orgs.append(d)
 
@@ -77,13 +82,14 @@ def list_organizations():
 
 
 @superadmin_bp.route('/superadmin/organizations', methods=['POST'])
+@superadmin_bp.route('/admin/organizations', methods=['POST'])
 @superadmin_required
 def create_organization():
     """Provisiona um novo tenant (empresa) na plataforma."""
     data = request.get_json() or {}
-    nome = (data.get('nome') or '').strip()
-    cnpj = (data.get('cnpj_ou_documento') or '').strip() or None
-    plano = (data.get('plano') or 'enterprise').strip().lower()
+    nome = (data.get('nome') or data.get('name') or '').strip()
+    cnpj = (data.get('cnpj_ou_documento') or data.get('document') or '').strip() or None
+    plano = (data.get('plano') or data.get('plan') or 'enterprise').strip().lower()
     raw_slug = (data.get('slug') or '').strip()
 
     if not nome:
@@ -121,6 +127,10 @@ def create_organization():
         created_org = row_to_dict(db.execute(
             'SELECT * FROM organizations WHERE id = ?', (new_org_id,)
         ).fetchone())
+        created_org['name'] = created_org['nome']
+        created_org['document'] = created_org['cnpj_ou_documento']
+        created_org['status'] = 'active' if created_org['ativo'] else 'inactive'
+        created_org['created_at'] = created_org['criado_em']
 
         return jsonify({
             'message': f"Organização '{nome}' provisionada com sucesso!",
@@ -166,12 +176,14 @@ def update_organization(org_id):
 
 
 @superadmin_bp.route('/superadmin/impersonate', methods=['POST'])
+@superadmin_bp.route('/admin/organizations/<int:target_org_id>/impersonate', methods=['POST'])
 @superadmin_required
-def impersonate():
+def impersonate(target_org_id=None):
     """Permite ao Superadmin assumir o contexto de qualquer organização com auditoria estrita."""
     data = request.get_json() or {}
-    target_org_id = data.get('target_org_id')
-    reason = (data.get('reason') or '').strip()
+    if not target_org_id:
+        target_org_id = data.get('target_org_id')
+    reason = (data.get('reason') or data.get('motivo') or '').strip()
 
     if not target_org_id:
         return jsonify({'message': 'O ID da organização alvo (target_org_id) é obrigatório.'}), 400
@@ -274,3 +286,72 @@ def list_audit_logs():
 
     rows = db.execute(query, params).fetchall()
     return jsonify(rows_to_list(rows)), 200
+
+
+@superadmin_bp.route('/api/support', methods=['POST'])
+@token_required
+def submit_support_ticket():
+    """Registra chamado de suporte/ajuda vinculado ao usuário e organização ativa."""
+    data = request.get_json() or {}
+    tipo = (data.get('tipo') or data.get('assunto') or data.get('subject') or 'duvida').strip()
+    mensagem = (data.get('mensagem') or data.get('message') or data.get('descricao') or '').strip()
+
+    if not mensagem:
+        return jsonify({'message': 'A mensagem/descrição da solicitação é obrigatória.'}), 400
+
+    db = get_db()
+    org_id = getattr(g, 'org_id', None)
+    usuario_id = g.user['id']
+
+    cursor = db.execute(
+        '''INSERT INTO suporte_chamados (usuario_id, organization_id, tipo, mensagem, status)
+           VALUES (?, ?, ?, ?, 'aberto')''',
+        (usuario_id, org_id, tipo, mensagem)
+    )
+    ticket_id = cursor.lastrowid
+
+    log_audit_event(
+        db, usuario_id, 'support.ticket_created',
+        f"Chamado #{ticket_id} ({tipo}) criado por {g.user['email']}: {mensagem[:60]}",
+        organization_id=org_id, ip_address=request.remote_addr
+    )
+    db.commit()
+
+    ticket_row = row_to_dict(db.execute('SELECT * FROM suporte_chamados WHERE id = ?', (ticket_id,)).fetchone())
+
+    return jsonify({
+        'status': 'success',
+        'message': f'Chamado de suporte #{ticket_id} registrado com sucesso!',
+        'ticket': ticket_row
+    }), 201
+
+
+@superadmin_bp.route('/api/support', methods=['GET'])
+@token_required
+def list_support_tickets():
+    """Lista chamados de suporte do usuário ou todos se for superadmin."""
+    db = get_db()
+    is_super = bool(g.user.get('is_superadmin'))
+    org_id = getattr(g, 'org_id', None)
+
+    if is_super:
+        rows = db.execute(
+            '''SELECT s.*, u.nome AS usuario_nome, u.email AS usuario_email, o.nome AS organization_nome
+               FROM suporte_chamados s
+               JOIN usuarios u ON u.id = s.usuario_id
+               LEFT JOIN organizations o ON o.id = s.organization_id
+               ORDER BY s.criado_em DESC'''
+        ).fetchall()
+    else:
+        rows = db.execute(
+            '''SELECT s.*, u.nome AS usuario_nome, u.email AS usuario_email, o.nome AS organization_nome
+               FROM suporte_chamados s
+               JOIN usuarios u ON u.id = s.usuario_id
+               LEFT JOIN organizations o ON o.id = s.organization_id
+               WHERE s.usuario_id = ? OR s.organization_id = ?
+               ORDER BY s.criado_em DESC''',
+            (g.user['id'], org_id)
+        ).fetchall()
+
+    return jsonify(rows_to_list(rows)), 200
+

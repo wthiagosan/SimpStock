@@ -235,3 +235,64 @@ def test_executive_kpis_endpoint(client, user_headers):
     assert kpis['itens_baixo_estoque'] == 1
     assert kpis['itens_saudaveis'] == 1
     assert len(kpis['movimentacoes_recentes']) >= 2
+
+
+def test_admin_organizations_crud_and_impersonate_aliases(client, admin_headers):
+    # 1. Listagem através de /admin/organizations
+    res_list = client.get('/admin/organizations', headers=admin_headers)
+    assert res_list.status_code == 200
+    orgs = res_list.get_json()
+    assert isinstance(orgs, list)
+    assert len(orgs) >= 1
+    assert 'name' in orgs[0]
+    assert 'status' in orgs[0]
+
+    # 2. Criação através de /admin/organizations com campos name e document
+    create_payload = {
+        'name': 'Rede Varejo Global',
+        'slug': 'rede-varejo-global',
+        'document': '99.888.777/0001-22',
+        'plan': 'pro'
+    }
+    res_create = client.post('/admin/organizations', json=create_payload, headers=admin_headers)
+    assert res_create.status_code == 201
+    created_org = res_create.get_json()['organization']
+    assert created_org['name'] == 'Rede Varejo Global'
+    assert created_org['status'] == 'active'
+    org_id = created_org['id']
+
+    # 3. Impersonação via /admin/organizations/<id>/impersonate
+    imp_payload = {'reason': 'Atendimento ao chamado de suporte nível 2'}
+    res_imp = client.post(f'/admin/organizations/{org_id}/impersonate', json=imp_payload, headers=admin_headers)
+    assert res_imp.status_code == 200
+    imp_data = res_imp.get_json()
+    assert 'token' in imp_data
+    assert imp_data['organization']['id'] == org_id
+
+
+def test_support_ticket_submission_and_listing(client, user_headers, admin_headers):
+    # 1. Envio de chamado de suporte válido pelo usuário
+    support_payload = {
+        'tipo': 'problema_tecnico',
+        'mensagem': 'Dificuldade para sincronizar código de barras do produto SKU-TESTE.'
+    }
+    res_submit = client.post('/api/support', json=support_payload, headers=user_headers)
+    assert res_submit.status_code == 201
+    data_submit = res_submit.get_json()
+    assert data_submit['status'] == 'success'
+    ticket = data_submit['ticket']
+    assert ticket['tipo'] == 'problema_tecnico'
+    assert ticket['status'] == 'aberto'
+    assert 'SKU-TESTE' in ticket['mensagem']
+
+    # 2. Tentativa de envio com mensagem em branco deve retornar 400
+    res_bad = client.post('/api/support', json={'mensagem': ''}, headers=user_headers)
+    assert res_bad.status_code == 400
+
+    # 3. Superadmin lista chamados
+    res_list = client.get('/api/support', headers=admin_headers)
+    assert res_list.status_code == 200
+    tickets = res_list.get_json()
+    assert isinstance(tickets, list)
+    assert any('SKU-TESTE' in t['mensagem'] for t in tickets)
+
