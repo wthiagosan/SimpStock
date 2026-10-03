@@ -1436,3 +1436,78 @@ window.carregarAuditoriaSuperadmin = async function() {
         tbody.innerHTML = "<tr><td colspan='6' style='text-align: center; color: var(--rose); padding: 1.5rem;'>Erro ao carregar auditoria.</td></tr>";
     }
 };
+
+// ============================================================
+//  SUPORTE TÉCNICO / PEDIR AJUDA
+// ============================================================
+window.abrirModalSuporte = function() {
+    const modal = document.getElementById("modalSuporte");
+    if (!modal) return;
+
+    const nome = localStorage.getItem("usuarioNome") || localStorage.getItem("usuarioLogado") || "Usuário";
+    const email = localStorage.getItem("usuarioEmail") || "";
+    const orgSelector = document.getElementById("orgContextSelector");
+    const activeOrgNome = localStorage.getItem("activeOrgNome") || (orgSelector ? orgSelector.options[orgSelector.selectedIndex]?.text : null) || "SimpStock Matriz";
+
+    const elUser = document.getElementById("suporteUsuarioInfo");
+    if (elUser) {
+        elUser.textContent = email ? `${nome} (${email})` : nome;
+    }
+
+    const elOrg = document.getElementById("suporteOrgInfo");
+    if (elOrg) {
+        elOrg.textContent = activeOrgNome;
+    }
+
+    const elMsg = document.getElementById("suporteMensagem");
+    if (elMsg) elMsg.value = "";
+
+    modal.style.display = "flex";
+};
+
+window.fecharModalSuporte = function() {
+    const modal = document.getElementById("modalSuporte");
+    if (modal) modal.style.display = "none";
+};
+
+window.enviarSolicitacaoSuporte = async function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const tipo = document.getElementById("suporteTipo")?.value || "duvida";
+    const mensagem = document.getElementById("suporteMensagem")?.value?.trim() || "";
+    const btnSubmit = document.getElementById("btnEnviarSuporte");
+
+    if (!mensagem) {
+        mostrarAlerta("Por favor, descreva sua solicitação detalhadamente.", "warning");
+        return;
+    }
+
+    if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="ti ti-loader" style="animation: spin 1s infinite linear;"></i> Enviando...';
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/api/support`, {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ tipo, mensagem })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            fecharModalSuporte();
+            mostrarAlerta(data.message || `Chamado de suporte #${data.ticket?.id || ''} registrado com sucesso!`, "success");
+            const elMsg = document.getElementById("suporteMensagem");
+            if (elMsg) elMsg.value = "";
+        } else {
+            mostrarAlerta(data.message || "Erro ao registrar chamado de suporte.", "error");
+        }
+    } catch (err) {
+        mostrarAlerta("Falha de conexão ao enviar chamado de suporte.", "error");
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = '<i class="ti ti-send"></i> Enviar Solicitação';
+        }
+    }
+};

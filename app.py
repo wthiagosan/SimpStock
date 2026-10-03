@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from config import Config
 from database import close_db, init_db
@@ -32,6 +32,10 @@ def create_app(config_class=Config):
             'version': '1.0.0',
             'description': 'Sistema de Gestão de Estoque e Inventário'
         }), 200
+
+    @app.route('/src/<path:filename>')
+    def serve_src(filename):
+        return send_from_directory('src', filename)
 
     @app.errorhandler(404)
     def not_found(error):

@@ -112,6 +112,12 @@
                         </select>
                     </div>
 
+                    <!-- Botão de Suporte / Pedir Ajuda -->
+                    <button type="button" class="btn-support-pill" onclick="abrirModalSuporte()" title="Pedir Ajuda / Abrir Chamado de Suporte">
+                        <i class="ti ti-help-circle"></i>
+                        <span>Suporte</span>
+                    </button>
+
                     <a href="Cadastro_de_produtos.html" class="btn-primary-action">
                         <i class="ti ti-plus"></i>
                         <span>Novo Produto</span>
@@ -198,6 +204,67 @@
                     Sim, Excluir
                 </button>
             </div>
+        </div>
+    <!-- Modal Interativo de Ajuda & Suporte Técnico -->
+    <div class="modal-suporte-overlay" id="modalSuporte">
+        <div class="modal-suporte-content">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: #eff6ff; color: #1d4ed8; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                        <i class="ti ti-headset"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); margin: 0;">Ajuda & Suporte Técnico</h3>
+                        <span style="font-size: 0.8rem; color: var(--slate-500);">Abertura de chamado direto com o time de engenharia</span>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalSuporte()" style="background: none; border: none; font-size: 1.25rem; color: var(--slate-400); cursor: pointer;" title="Fechar">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            <!-- Identificação Automática do Usuário e Organização Ativa -->
+            <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-sm); padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: var(--slate-700);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                    <span style="color: var(--slate-500);"><i class="ti ti-user"></i> Solicitante:</span>
+                    <strong id="suporteUsuarioInfo">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--slate-500);"><i class="ti ti-building"></i> Organização Ativa:</span>
+                    <strong id="suporteOrgInfo">-</strong>
+                </div>
+            </div>
+
+            <form id="formSuporte" onsubmit="enviarSolicitacaoSuporte(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--slate-700); margin-bottom: 0.35rem;">
+                        Tipo de Solicitação *
+                    </label>
+                    <select id="suporteTipo" class="form-control" style="width: 100%; font-size: 0.85rem;" required>
+                        <option value="duvida">Dúvida Operacional</option>
+                        <option value="problema_tecnico">Problema Técnico / Incidente</option>
+                        <option value="divergencia_estoque">Divergência de Estoque / Saldo</option>
+                        <option value="funcionalidade">Sugestão de Funcionalidade</option>
+                        <option value="outro">Outro Assunto</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--slate-700); margin-bottom: 0.35rem;">
+                        Descrição Detalhada *
+                    </label>
+                    <textarea id="suporteMensagem" rows="4" class="form-control" style="width: 100%; font-size: 0.85rem; resize: vertical;"
+                              placeholder="Descreva o que ocorreu ou qual auxílio você precisa..." required></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" class="btn-secondary" onclick="fecharModalSuporte()">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btnEnviarSuporte">
+                        <i class="ti ti-send"></i>
+                        <span>Enviar Solicitação</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
