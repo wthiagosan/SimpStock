@@ -5,24 +5,25 @@
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![JWT](https://img.shields.io/badge/JWT-Secure%20Auth-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/Tests-16%20Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org/)
+[![Tests](https://img.shields.io/badge/Tests-26%20Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org/)
 [![CI Build](https://img.shields.io/badge/CI-Passing-success?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/wthiagosan/SimpStock/actions)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-24292e?style=for-the-badge&logo=githubpages&logoColor=white)](https://wthiagosan.github.io/SimpStock/)
 
-> **Projeto Showcase de Engenharia de Software & Segurança Defensiva**  
+> **Projeto Showcase de Engenharia de Software SaaS B2B, Multi-Tenancy & Segurança Defensiva**  
 > 🌐 **Acesse online:** [https://wthiagosan.github.io/SimpStock/](https://wthiagosan.github.io/SimpStock/)  
-> Plataforma de gestão de inventário e controle de fluxo de mercadorias desenvolvida com arquitetura modular desacoplada (**Flask Blueprints**), autenticação semântica via **JSON Web Tokens (JWT)**, criptografia defensiva (**Scrypt/PBKDF2**), proteção contra **IDOR (Insecure Direct Object References)** e auditoria transacional completa de movimentações.
+> Plataforma de gestão de inventário e controle de fluxo de mercadorias desenvolvida com arquitetura modular desacoplada (**Flask Blueprints**), isolamento multilocatário estrito (**Multi-Tenant by Organization**), centro de comando **Superadmin** com impersonação de suporte e auditoria imutável, autenticação semântica via **JSON Web Tokens (JWT)**, criptografia defensiva (**Scrypt/PBKDF2**) e proteção contra **IDOR**.
 
 ---
 
 ## 🧭 Sumário Executivo
 
-O **SimpStock** foi concebido para resolver os gargalos operacionais de controle de estoques em pequenos e médios lojistas, eliminando planilhas manuais e perdas de produtos por descontrole de validade ou falta de rastreio.
+O **SimpStock** foi concebido para resolver os gargalos operacionais de controle de estoques em múltiplas empresas e franquias, eliminando planilhas manuais e perdas de produtos por descontrole de validade ou falta de rastreio.
 
-O sistema foi refatorado para operar sob os mais rigorosos padrões da indústria:
-1. **Segurança Corporativa (OWASP Top 10):** Criptografia com salt para credenciais de usuários, validação estrita de integridade de sessão e controle de acesso baseado em funções (RBAC).
-2. **Isolamento Multilocatário (Tenant Isolation):** Lojistas têm seus estoques estritamente isolados; o backend impede qualquer acesso não autorizado ou manipulação de produtos alheios (prevenção contra IDOR).
-3. **Auditoria Contínua:** Todas as entradas, saídas ou ajustes manuais de estoque geram registros imutáveis na tabela de movimentações com identificação do operador responsável e timestamp.
+O sistema opera sob os mais rigorosos padrões da indústria:
+1. **Segurança Corporativa (OWASP Top 10):** Criptografia com salt para credenciais de usuários, validação estrita de integridade de sessão e controle de acesso hierárquico baseado em funções (Superadmin, Org Admin, Org Operator e Viewer).
+2. **Isolamento Multilocatário (Tenant Isolation):** Empresas clientes possuem seus dados e inventários estritamente isolados; o backend impede qualquer vazamento cruzado de informações entre organizações.
+3. **Centro de Comando Superadmin & Impersonação Auditada:** Administradores master da plataforma podem alternar entre organizações e iniciar sessões de suporte técnico rastreadas por justificativas obrigatórias gravadas em logs de auditoria imutáveis.
+4. **Valoração Financeira & KPIs Executivos:** Métricas em tempo real de custo imobilizado, potencial de vendas, itens em risco de ruptura e giro de estoque.
 
 ---
 
@@ -32,16 +33,20 @@ A aplicação adota o padrão **Client-Server RESTful** com divisão modular em 
 
 ```mermaid
 graph TD
-    Client["Navegador Web / SPA Client\n(HTML5, CSS3, Vanilla JS)"] -->|"Bearer Token (JWT)"| Middleware["Camada de Segurança (auth.py)\n@token_required & @admin_required"]
+    Client["Navegador Web / SPA Client\n(HTML5, CSS3, Vanilla JS)"] -->|"Bearer Token (JWT) + X-Organization-Id"| Middleware["Camada de Segurança (auth.py)\n@token_required, @org_admin_required & @superadmin_required"]
     
     subgraph Backend_Flask ["Backend Modular (Flask API)"]
         Middleware --> AuthRoutes["Auth Blueprint\n(/login, /register, /me)"]
-        Middleware --> ProdRoutes["Produtos Blueprint\n(CRUD Produtos + Tenant Isolation)"]
+        Middleware --> OrgRoutes["Organizations Blueprint\n(/switch, /my, /categories, /suppliers)"]
+        Middleware --> SuperAdminRoutes["Superadmin Blueprint\n(/overview, /organizations, /impersonate, /audit-logs)"]
+        Middleware --> ProdRoutes["Produtos Blueprint\n(CRUD Produtos + Tenant Isolation + KPIs)"]
         Middleware --> MovRoutes["Movimentações Blueprint\n(Auditoria de Entradas/Saídas)"]
-        Middleware --> AdminRoutes["Admin Blueprint\n(Gestão de Usuários + Proteção de Master)"]
+        Middleware --> AdminRoutes["Admin Blueprint\n(Gestão de Usuários da Organização)"]
     end
 
-    AuthRoutes --> DB[("SQLite 3 (PRAGMA foreign_keys = ON)")]
+    AuthRoutes --> DB[("SQLite 3 Relacional (PRAGMA foreign_keys = ON, WAL Mode)")]
+    OrgRoutes --> DB
+    SuperAdminRoutes --> DB
     ProdRoutes --> DB
     MovRoutes --> DB
     AdminRoutes --> DB

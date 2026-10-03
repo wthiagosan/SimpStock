@@ -9,12 +9,14 @@ from auth import token_required
 def get_movimentacoes():
     produto_id = request.args.get('produto_id', type=int)
     db = get_db()
+    is_super = bool(g.user.get('is_superadmin'))
     is_admin = bool(g.user.get('is_admin'))
+    org_id = getattr(g, 'org_id', None)
 
     base_query = '''
         SELECT m.id, m.produto_id, m.usuario_id, m.tipo, m.quantidade,
-               m.motivo, m.criado_em,
-               p.nome AS produto_nome,
+               m.motivo, m.criado_em, m.organization_id, m.custo_unitario,
+               p.nome AS produto_nome, p.codigo AS produto_codigo,
                u.nome AS usuario_nome
         FROM movimentacoes m
         JOIN produtos p ON p.id = m.produto_id
@@ -24,7 +26,10 @@ def get_movimentacoes():
     params = []
     conditions = []
 
-    if not is_admin:
+    if org_id and not (is_super and not request.headers.get('X-Organization-Id')):
+        conditions.append('(m.organization_id = ? OR (m.organization_id IS NULL AND p.usuario_id = ?))')
+        params.extend([org_id, g.user['id']])
+    elif not is_admin and not is_super:
         conditions.append('p.usuario_id = ?')
         params.append(g.user['id'])
 
