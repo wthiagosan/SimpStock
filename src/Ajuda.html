@@ -83,22 +83,22 @@
                 <!-- FAQ 4 -->
                 <div class="faq-item">
                     <div class="faq-question">
-                        <span>Como testar o sistema online sem instalar banco de dados?</span>
+                        <span>Como testar o sistema online sem necessidade de instalação?</span>
                         <i class="ti ti-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>O SimpStock conta com o <strong>Modo Demonstração (Live Demo)</strong>. Na página inicial ou na tela de login, clique em <em>"Ver Demonstração Online"</em>. O sistema carregará um banco de dados virtual via <code>localStorage</code> com produtos e usuários de teste, permitindo testar buscas em tempo real, cadastros, edições e exclusões com 100% de funcionalidade em qualquer navegador.</p>
+                        <p>O SimpStock disponibiliza o <strong>Modo Demonstração (Live Demo)</strong>. Na página inicial ou na tela de login, clique em <em>"Experimente Grátis (Demo Online)"</em> para navegar por dados de teste, simular cadastros, registrar movimentações e explorar o painel de controle completo com 100% de funcionalidade em qualquer navegador.</p>
                     </div>
                 </div>
 
                 <!-- FAQ 5 -->
                 <div class="faq-item">
                     <div class="faq-question">
-                        <span>Como funciona o controle de permissões de usuários (RBAC)?</span>
+                        <span>Como funciona o controle de permissões de usuários?</span>
                         <i class="ti ti-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Usuários com perfil de <strong>Lojista</strong> gerenciam apenas seu próprio catálogo de produtos. Usuários com perfil de <strong>Administrador</strong> têm acesso ao painel <em>Gestão de Usuários</em>, podendo listar contas registradas e remover acessos não autorizados. A proteção do administrador mestre (ID: 1) impede a desativação acidental do tenant principal.</p>
+                        <p>O SimpStock permite configurar níveis de acesso sob medida para a sua equipe. Operadores e estoquistas visualizam apenas as operações pertinentes ao seu catálogo diário, enquanto administradores têm acesso à gestão de usuários e aos relatórios consolidados da empresa.</p>
                     </div>
                 </div>
             </div>
@@ -141,7 +141,7 @@
         <section class="contact-banner">
             <div class="contact-content">
                 <h3>Ainda precisa de auxílio?</h3>
-                <p>Nossa equipe de suporte técnico e engenharia de software está pronta para responder suas dúvidas sobre integração, API ou deploy em nuvem.</p>
+                <p>Nossa equipe de suporte especializado e atendimento corporativo está pronta para responder suas dúvidas sobre uso diário e operações de estoque.</p>
             </div>
             <div class="contact-channels">
                 <div class="contact-item">
@@ -162,10 +162,47 @@
         </section>
     </main>
 
-    <!-- Rodapé -->
+    <!-- Rodapé Corporativo B2B -->
     <footer>
-        <p>&copy; 2024–2026 <strong>SimpStock</strong>. Todos os direitos reservados.</p>
-        <p>Projeto de Engenharia de Software desenvolvido por <strong>Welinton Thiago</strong> e <strong>Wesley</strong>.</p>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <img class="footer-logo" src="imagens/logo.png" alt="SimpStock">
+                <p>Plataforma SaaS moderna para gestão inteligente de estoque e inventário comercial. Simplicidade, precisão e controle para o seu negócio.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Produto</h4>
+                <ul class="footer-links">
+                    <li><a href="../index.html">Visão Geral</a></li>
+                    <li><a href="tabela_principal.html">Catálogo de Produtos</a></li>
+                    <li><a href="Login.html">Experimente Grátis</a></li>
+                    <li><a href="Tela_inicial.html">Painel de Controle</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Empresa</h4>
+                <ul class="footer-links">
+                    <li><a href="Sobre_nos.html">Sobre nós</a></li>
+                    <li><a href="Ajuda.html">Central de Ajuda & FAQ</a></li>
+                    <li><a href="Ajuda.html">Boas Práticas de Estoque</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <ul class="footer-links">
+                    <li><a href="mailto:contato@simpstock.com"><i class="ti ti-mail"></i> contato@simpstock.com</a></li>
+                    <li><a href="mailto:suporte@simpstock.com"><i class="ti ti-headset"></i> suporte@simpstock.com</a></li>
+                    <li><span style="color: var(--slate-400); font-size: 0.85rem;"><i class="ti ti-clock"></i> Seg a Sex, 09h às 18h</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>&copy; 2026 SimpStock. Todos os direitos reservados.</div>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="Ajuda.html">Termos de Uso</a>
+                <a href="Ajuda.html">Privacidade</a>
+                <a href="Ajuda.html">Segurança</a>
+            </div>
+        </div>
     </footer>
 
     <!-- Script para FAQ interativo -->
