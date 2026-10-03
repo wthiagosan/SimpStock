@@ -472,53 +472,173 @@ body {
 }
 
 /* ============================================================
-   METRICS BANNER
+   COMMERCIAL VALUE PROPOSITION PILLARS (BANNER)
    ============================================================ */
 .metrics-banner {
-    background-color: var(--slate-900);
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
     color: var(--white);
-    padding: 60px 2rem;
+    padding: 70px 2rem;
     margin: 40px 0;
+    position: relative;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .metrics-inner {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
-    text-align: center;
+    text-align: left;
 }
 
-.metric-number {
-    font-size: 2.8rem;
-    font-weight: 800;
+.pillar-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem 1.6rem;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.pillar-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.45);
+}
+
+.pillar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.15);
     color: var(--emerald);
-    line-height: 1.1;
-    margin-bottom: 0.4rem;
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
 }
 
-.metric-label {
-    font-size: 0.9rem;
-    color: var(--slate-400);
+.pillar-title {
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.65rem;
+    line-height: 1.3;
 }
 
-/* Footer */
+.pillar-desc {
+    font-size: 0.92rem;
+    color: var(--slate-300);
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* ============================================================
+   CORPORATE FOOTER (B2B SAAS)
+   ============================================================ */
 footer {
-    background-color: var(--white);
-    border-top: 1px solid var(--slate-200);
-    padding: 40px 2rem;
-    text-align: center;
+    background-color: var(--slate-900);
+    color: var(--slate-400);
+    border-top: 1px solid var(--slate-800);
+    padding: 60px 2rem 30px;
+    font-size: 0.9rem;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 45px;
+    text-align: left;
+}
+
+@media (max-width: 900px) {
+    .footer-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+.footer-brand .footer-logo {
+    height: 38px;
+    margin-bottom: 1.1rem;
+    filter: brightness(0) invert(1);
+}
+
+.footer-brand p {
+    color: var(--slate-400);
+    line-height: 1.6;
+    max-width: 340px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.footer-col h4 {
+    color: var(--white);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.3px;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-links a {
+    color: var(--slate-400);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.footer-links a:hover {
+    color: var(--emerald);
+}
+
+.footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 25px;
+    border-top: 1px solid var(--slate-800);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.86rem;
     color: var(--slate-500);
-    font-size: 0.88rem;
 }
 
-footer p {
-    margin-bottom: 0.5rem;
+.footer-bottom a {
+    color: var(--slate-400);
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-footer strong {
-    color: var(--slate-800);
+.footer-bottom a:hover {
+    color: var(--emerald);
 }
 
 /* ============================================================

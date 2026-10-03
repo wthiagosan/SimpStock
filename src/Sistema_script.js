@@ -1,5 +1,5 @@
 // ============================================================
-//  SimpStock Frontend Script (JWT Auth, API & Live Demo)
+//  SimpStock Frontend Script (Plataforma Comercial SaaS)
 //  Arquitetura Moderna: App Shell, Dashboard KPIs, Realtime Filters
 // ============================================================
 
@@ -17,10 +17,10 @@ const API_URL = (() => {
 
 function isDemoMode() {
     const token = localStorage.getItem("token") || "";
-    return token.startsWith("demo-token-") || token === "demo-token-jwt-preview" || localStorage.getItem("offline_mode") === "true";
+    return token.startsWith("demo-token-") || localStorage.getItem("offline_mode") === "true";
 }
 
-// Inicializa dados de demonstração caso o usuário teste via GitHub Pages sem backend ativo
+// Inicializa dados de demonstração interativos caso o usuário teste a plataforma online
 function inicializarDadosDemo() {
     if (!localStorage.getItem("demo_produtos")) {
         const produtosIniciais = [
@@ -43,7 +43,7 @@ function inicializarDadosDemo() {
     }
 }
 
-// --- GESTÃO DE TOKENS E CABEÇALHOS JWT ---
+// --- GESTÃO DE SESSÃO E CABEÇALHOS DE AUTENTICAÇÃO ---
 function getAuthToken() {
     return localStorage.getItem("token") || "";
 }
@@ -294,7 +294,7 @@ function configurarLogin() {
     if (btnDemo) {
         btnDemo.addEventListener("click", () => {
             inicializarDadosDemo();
-            localStorage.setItem("token", "demo-token-jwt-preview");
+            localStorage.setItem("token", "demo-token-session-preview");
             localStorage.setItem("usuarioLogado", "Lojista Demonstração");
             localStorage.setItem("usuarioNome", "Lojista Demonstração");
             localStorage.setItem("usuarioEmail", "demo@simpstock.com");
@@ -334,7 +334,7 @@ function configurarLogin() {
                 return;
             }
         } catch (erro) { 
-            // Fallback transparente para GitHub Pages / Offline
+            // Fallback transparente para Demonstração Online / Navegador
             inicializarDadosDemo();
             let usuarios = JSON.parse(localStorage.getItem("demo_usuarios") || "[]");
             const usuario = usuarios.find(u => u.email.toLowerCase() === email.toLowerCase());
@@ -354,7 +354,7 @@ function configurarLogin() {
                 return;
             }
 
-            localStorage.setItem("token", `demo-token-jwt-${usuario.id}`);
+            localStorage.setItem("token", `demo-token-session-${usuario.id}`);
             localStorage.setItem("usuarioLogado", usuario.nome);
             localStorage.setItem("usuarioNome", usuario.nome);
             localStorage.setItem("usuarioEmail", usuario.email);
@@ -408,7 +408,7 @@ function configurarCadastro() {
                 return;
             }
         } catch (erro) { 
-            // Fallback transparente para GitHub Pages / Offline
+            // Fallback transparente para Demonstração Online / Navegador
             inicializarDadosDemo();
             let usuarios = JSON.parse(localStorage.getItem("demo_usuarios") || "[]");
             const emailJaExiste = usuarios.some(u => u.email.toLowerCase() === email.toLowerCase());
