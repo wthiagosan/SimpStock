@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpStock - Plataforma Superadmin (Centro de Comando Multi-Empresa)</title>
+    <link rel="icon" type="image/png" href="imagens/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+    <link rel="stylesheet" href="Sistema_style.css">
+    <style>
+        .superadmin-badge {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: var(--radius-full);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
+        }
+        .impersonation-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .impersonation-modal {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 520px;
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--slate-200);
+        }
+        .badge-plan {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+        }
+        .badge-plan.enterprise { background: #e0e7ff; color: #3730a3; }
+        .badge-plan.pro { background: #ecfdf5; color: #047857; }
+        .badge-plan.starter { background: #f1f5f9; color: #475569; }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar de Navegação Corporativa -->
+        <aside class="app-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="Tela_inicial.html" class="brand-logo">
+                    <img src="imagens/logo-dark.png" alt="SimpStock">
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="nav-section-title">Comando da Plataforma</span>
+                <a href="Superadmin.html" class="sidebar-link active">
+                    <i class="ti ti-building-warehouse"></i>
+                    <span>Gestão de Empresas</span>
+                </a>
+                <a href="#auditTrailSection" class="sidebar-link" onclick="irParaAuditoria()">
+                    <i class="ti ti-file-text"></i>
+                    <span>Trilha de Auditoria</span>
+                </a>
+
+                <span class="nav-section-title">Operação do Estoque</span>
+                <a href="Tela_inicial.html" class="sidebar-link">
+                    <i class="ti ti-layout-dashboard"></i>
+                    <span>Dashboard Operacional</span>
+                </a>
+                <a href="tabela_principal.html" class="sidebar-link">
+                    <i class="ti ti-package"></i>
+                    <span>Estoque de Produtos</span>
+                </a>
+                <a href="Cadastro_de_produtos.html" class="sidebar-link">
+                    <i class="ti ti-circle-plus"></i>
+                    <span>Novo Produto</span>
+                </a>
+
+                <div id="adminMenuSection">
+                    <span class="nav-section-title">Administração Local</span>
+                    <a href="Admin.html" class="sidebar-link">
+                        <i class="ti ti-users-group"></i>
+                        <span>Usuários da Empresa</span>
+                    </a>
+                </div>
+
+                <span class="nav-section-title">Suporte & FAQ</span>
+                <a href="Ajuda.html" class="sidebar-link">
+                    <i class="ti ti-help-circle"></i>
+                    <span>Ajuda & FAQ</span>
+                </a>
+                <a href="Sobre_nos.html" class="sidebar-link">
+                    <i class="ti ti-info-circle"></i>
+                    <span>Sobre o Projeto</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-info-wrapper">
+                        <div class="user-avatar" id="userAvatar" style="background: linear-gradient(135deg, #4f46e5, #7c3aed);">SA</div>
+                        <div class="user-details">
+                            <span class="user-name" id="sidebarUserName">Superadministrador</span>
+                            <span class="superadmin-badge">SUPERADMIN</span>
+                        </div>
+                    </div>
+                    <button class="btn-logout" onclick="logout()" title="Encerrar Sessão">
+                        <i class="ti ti-logout"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área Principal -->
+        <div class="app-main">
+            <!-- Topbar Superior -->
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="topbar-mobile-toggle" id="btnToggleSidebar">
+                        <i class="ti ti-menu-2"></i>
+                    </button>
+                    <div>
+                        <h2 class="topbar-title">Centro de Comando da Plataforma SaaS</h2>
+                        <span style="font-size: 0.8rem; color: var(--slate-500);">Visão Global Multi-Tenant, Auditoria Criptográfica & Impersonação de Suporte</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <button class="btn-primary-action" onclick="abrirModalNovaOrganizacao()">
+                        <i class="ti ti-plus"></i>
+                        <span>Nova Organização</span>
+                    </button>
+                    <a href="Tela_inicial.html" class="btn-secondary">
+                        <i class="ti ti-arrow-left"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Conteúdo da Página -->
+            <main class="app-content">
+                <!-- Métricas Globais da Plataforma -->
+                <section class="kpi-grid" style="margin-bottom: 2rem;">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">Empresas Cadastradas</span>
+                            <div class="kpi-icon-badge indigo">
+                                <i class="ti ti-building-skyscraper"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiTotalEmpresas">-</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-circle-check" style="color: var(--emerald);"></i>
+                            <span id="kpiEmpresasAtivas">- ativas na nuvem</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">Contas Globais</span>
+                            <div class="kpi-icon-badge blue">
+                                <i class="ti ti-users"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiTotalUsuariosGlobais">-</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-shield-lock" style="color: var(--primary);"></i>
+                            <span>Acessos monitorados e auditados</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">SKUs Catalogados</span>
+                            <div class="kpi-icon-badge amber">
+                                <i class="ti ti-barcode"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiTotalSkusGlobais">-</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-packages"></i>
+                            <span id="kpiTotalItensGlobais">- unidades estocadas</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <span class="kpi-card-title">Patrimônio em Estoque</span>
+                            <div class="kpi-icon-badge emerald">
+                                <i class="ti ti-coin"></i>
+                            </div>
+                        </div>
+                        <div class="kpi-card-value" id="kpiValorEstoqueGlobal">R$ 0,00</div>
+                        <div class="kpi-card-footer">
+                            <i class="ti ti-chart-line" style="color: var(--emerald);"></i>
+                            <span>Valoração somada de todos os tenants</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tabela de Organizações (Tenants) -->
+                <div class="table-card" style="margin-bottom: 2.5rem;">
+                    <div class="table-toolbar">
+                        <div>
+                            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ti ti-building" style="color: var(--primary);"></i> Organizações Cadastradas
+                            </h3>
+                            <p style="font-size: 0.82rem; color: var(--slate-500); margin: 0;">Isolamento estrito de dados por tenant com suporte a impersonação rastreada</p>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                            <input type="text" id="filtroOrganizacaoInput" placeholder="Buscar por nome ou slug..."
+                                   class="form-control" style="width: 260px; font-size: 0.85rem;" oninput="filtrarTabelaOrganizacoes()">
+                            <button class="btn-secondary" onclick="carregarOrganizacoesSuperadmin()" title="Atualizar Lista">
+                                <i class="ti ti-refresh"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table" id="tabelaOrganizacoes">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">ID</th>
+                                    <th>Empresa / Organização</th>
+                                    <th>Identificador (Slug)</th>
+                                    <th>Plano</th>
+                                    <th>Status</th>
+                                    <th>Usuários</th>
+                                    <th>Produtos</th>
+                                    <th>Valor em Estoque</th>
+                                    <th style="text-align: right; width: 220px;">Ações de Comando</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaOrganizacoesBody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 2.5rem; color: var(--slate-400);">
+                                        <i class="ti ti-loader" style="font-size: 1.5rem; animation: spin 1s infinite linear;"></i>
+                                        <p style="margin-top: 0.5rem;">Carregando organizações da plataforma...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Seção de Trilha de Auditoria Global (Audit Trail) -->
+                <div class="table-card" id="auditTrailSection">
+                    <div class="table-toolbar">
+                        <div>
+                            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ti ti-shield-check" style="color: var(--emerald);"></i> Trilha de Auditoria Criptográfica
+                            </h3>
+                            <p style="font-size: 0.82rem; color: var(--slate-500); margin: 0;">Registro imutável de eventos de autenticação, impersonações e operações sensíveis</p>
+                        </div>
+                        <button class="btn-secondary" onclick="carregarAuditoriaSuperadmin()" title="Atualizar Trilha">
+                            <i class="ti ti-refresh"></i> <span>Atualizar Logs</span>
+                        </button>
+                    </div>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table" id="tabelaAuditoria">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">Data & Hora</th>
+                                    <th>Ação / Evento</th>
+                                    <th>Usuário</th>
+                                    <th>Empresa</th>
+                                    <th>IP</th>
+                                    <th>Detalhes e Justificativa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaAuditoriaBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--slate-400);">
+                                        <i class="ti ti-loader" style="font-size: 1.5rem; animation: spin 1s infinite linear;"></i>
+                                        <p style="margin-top: 0.5rem;">Consultando histórico de auditoria...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal de Impersonação (Log In As) -->
+    <div class="impersonation-modal-overlay" id="modalImpersonar">
+        <div class="impersonation-modal">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                        <i class="ti ti-user-exclamation"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); margin: 0;">Sessão de Suporte Técnico</h3>
+                        <span style="font-size: 0.8rem; color: var(--slate-500);">Impersonação de Organização (Log in as)</span>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalImpersonar()" style="background: none; border: none; font-size: 1.25rem; color: var(--slate-400); cursor: pointer;">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.82rem; color: #92400e; margin-bottom: 1.25rem; line-height: 1.4;">
+                <strong>Aviso de Conformidade:</strong> Você está prestes a acessar a visão operacional da empresa <strong id="impersonateOrgNome">...</strong>. Esta sessão é estritamente monitorada e o motivo informado será gravado de forma imutável nos relatórios de auditoria.
+            </div>
+
+            <input type="hidden" id="impersonateOrgId">
+
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--slate-700); margin-bottom: 0.4rem;">
+                    Justificativa Obrigatória do Atendimento:
+                </label>
+                <textarea id="impersonateMotivo" rows="3" class="form-control" style="width: 100%; font-size: 0.85rem; resize: vertical;"
+                          placeholder="Ex: Chamado #8491 - Investigação de divergência de estoque reportada pelo cliente..."></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" class="btn-secondary" onclick="fecharModalImpersonar()">Cancelar</button>
+                <button type="button" class="btn-primary-action" onclick="confirmarImpersonacao()" style="background: #dc2626; border-color: #dc2626;">
+                    <i class="ti ti-shield-lock"></i>
+                    <span>Iniciar Sessão Auditada</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Criação de Organização -->
+    <div class="impersonation-modal-overlay" id="modalNovaOrg">
+        <div class="impersonation-modal">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                        <i class="ti ti-building-plus"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); margin: 0;">Provisionar Empresa</h3>
+                        <span style="font-size: 0.8rem; color: var(--slate-500);">Criar novo tenant com isolamento nativo</span>
+                    </div>
+                </div>
+                <button type="button" onclick="fecharModalNovaOrg()" style="background: none; border: none; font-size: 1.25rem; color: var(--slate-400); cursor: pointer;">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+
+            <form id="formNovaOrg" onsubmit="salvarNovaOrganizacao(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--slate-700); margin-bottom: 0.3rem;">Nome da Organização *</label>
+                    <input type="text" id="novaOrgNome" required class="form-control" style="width: 100%;" placeholder="Ex: Varejo Express Matriz">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--slate-700); margin-bottom: 0.3rem;">CNPJ ou Documento</label>
+                    <input type="text" id="novaOrgCnpj" class="form-control" style="width: 100%;" placeholder="00.000.000/0001-00">
+                </div>
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--slate-700); margin-bottom: 0.3rem;">Plano Comercial</label>
+                    <select id="novaOrgPlano" class="form-control" style="width: 100%;">
+                        <option value="enterprise">Enterprise (Ilimitado)</option>
+                        <option value="pro">Pro (Até 50 usuários)</option>
+                        <option value="starter">Starter</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" class="btn-secondary" onclick="fecharModalNovaOrg()">Cancelar</button>
+                    <button type="submit" class="btn-primary-action">
+                        <i class="ti ti-check"></i>
+                        <span>Provisionar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="Sistema_script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            verificarAcessoSuperadmin();
+            carregarOverviewSuperadmin();
+            carregarOrganizacoesSuperadmin();
+            carregarAuditoriaSuperadmin();
+        });
+
+        function irParaAuditoria() {
+            const el = document.getElementById('auditTrailSection');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

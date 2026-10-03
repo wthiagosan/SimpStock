@@ -42,6 +42,14 @@
                     </a>
                 </div>
 
+                <div id="superadminMenuSection" style="display: none;">
+                    <span class="nav-section-title">Plataforma</span>
+                    <a href="Superadmin.html" class="sidebar-link">
+                        <i class="ti ti-building-warehouse"></i>
+                        <span>Comando Superadmin</span>
+                    </a>
+                </div>
+
                 <span class="nav-section-title">Suporte</span>
                 <a href="Ajuda.html" class="sidebar-link">
                     <i class="ti ti-help-circle"></i>
@@ -75,6 +83,17 @@
 
         <!-- Área Principal -->
         <div class="app-main">
+            <!-- Banner de Impersonação Ativa (Apenas em modo suporte) -->
+            <div id="impersonationBanner" style="display: none; background: linear-gradient(90deg, #dc2626, #b91c1c); color: #ffffff; padding: 0.65rem 1.5rem; font-size: 0.82rem; font-weight: 500; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); z-index: 50;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <i class="ti ti-shield-lock" style="font-size: 1.1rem;"></i>
+                    <span><strong>Modo Suporte Técnico Ativo:</strong> Você está acessando em nome de <span id="impersonatedOrgNameBanner">uma empresa cliente</span>. Todas as operações são registradas na trilha de auditoria.</span>
+                </div>
+                <button type="button" onclick="encerrarImpersonacao()" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: #fff; padding: 4px 12px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 600; cursor: pointer;">
+                    Encerrar Suporte
+                </button>
+            </div>
+
             <!-- Topbar Superior -->
             <header class="app-topbar">
                 <div class="topbar-left">
@@ -85,6 +104,14 @@
                 </div>
 
                 <div class="topbar-right">
+                    <!-- Seletor de Contexto Multi-Tenant (Organizações) -->
+                    <div class="org-switcher-wrapper" id="orgSwitcherWrapper" style="display: flex; align-items: center; gap: 0.4rem; background: var(--slate-100); border: 1px solid var(--slate-200); padding: 5px 12px; border-radius: var(--radius-md);">
+                        <i class="ti ti-building" style="color: var(--primary); font-size: 1.1rem;"></i>
+                        <select id="orgContextSelector" onchange="trocarOrganizacaoContexto(this.value)" style="background: transparent; border: none; font-size: 0.82rem; font-weight: 600; color: var(--slate-800); outline: none; cursor: pointer;">
+                            <option value="1">SimpStock Matriz</option>
+                        </select>
+                    </div>
+
                     <a href="Cadastro_de_produtos.html" class="btn-primary-action">
                         <i class="ti ti-plus"></i>
                         <span>Novo Produto</span>

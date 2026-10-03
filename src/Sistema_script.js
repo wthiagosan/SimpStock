@@ -57,6 +57,10 @@ function getAuthHeaders(extraHeaders = {}) {
     if (token) {
         headers["Authorization"] = `Bearer ${token}`;
     }
+    const orgId = localStorage.getItem("activeOrgId");
+    if (orgId) {
+        headers["X-Organization-Id"] = String(orgId);
+    }
     return headers;
 }
 
@@ -66,6 +70,10 @@ function getUsuarioId() {
 
 function getIsAdmin() {
     return localStorage.getItem("isAdmin") === "true";
+}
+
+function getIsSuperadmin() {
+    return localStorage.getItem("isSuperadmin") === "true";
 }
 
 // --- TOASTS MODERNOS (ALTO CONTRASTE) ---
@@ -198,10 +206,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const isAdmin = getIsAdmin();
+    const isSuper = getIsSuperadmin();
     const adminSection = document.getElementById("adminMenuSection");
-    if (adminSection) adminSection.style.display = isAdmin ? "block" : "none";
+    if (adminSection) adminSection.style.display = (isAdmin || isSuper) ? "block" : "none";
 
-    if (path.includes("Admin.html") && !isAdmin) {
+    const superadminSection = document.getElementById("superadminMenuSection");
+    if (superadminSection) superadminSection.style.display = isSuper ? "block" : "none";
+
+    if (!isPublic) {
+        carregarContextoOrganizacoes();
+    }
+
+    if (path.includes("Admin.html") && !isAdmin && !isSuper) {
         mostrarAlerta("Acesso restrito a administradores!", "error");
         setTimeout(() => { window.location.href = "Tela_inicial.html"; }, 1500);
         return;
@@ -325,6 +341,11 @@ function configurarLogin() {
                 localStorage.setItem("usuarioNome", data.usuario);
                 localStorage.setItem("usuarioId", data.usuario_id);
                 localStorage.setItem("isAdmin", data.is_admin ? "true" : "false");
+                localStorage.setItem("isSuperadmin", data.is_superadmin ? "true" : "false");
+                if (data.organizacao_ativa) {
+                    localStorage.setItem("activeOrgId", data.organizacao_ativa.id);
+                    localStorage.setItem("activeOrgNome", data.organizacao_ativa.nome);
+                }
                 localStorage.removeItem("offline_mode");
                 mostrarAlerta("Login autorizado com sucesso!", "success");
                 setTimeout(() => { window.location.href = "Tela_inicial.html"; }, 900);
@@ -477,6 +498,7 @@ window.carregarDashboardKPIs = async function() {
     const estoqueBaixo = produtos.filter(p => p.quantidade > 0 && p.quantidade < 5).length;
     const esgotados = produtos.filter(p => p.quantidade <= 0).length;
     const totalUnidades = produtos.reduce((acc, p) => acc + (parseInt(p.quantidade, 10) || 0), 0);
+    const valorTotalEstoque = produtos.reduce((acc, p) => acc + ((parseInt(p.quantidade, 10) || 0) * (parseFloat(p.custo_unitario) || 0.0)), 0);
 
     // Atualiza KPIs no DOM
     const kpiTotal = document.getElementById("kpiTotalProdutos");
@@ -490,6 +512,9 @@ window.carregarDashboardKPIs = async function() {
 
     const kpiUnid = document.getElementById("kpiTotalUnidades");
     if (kpiUnid) kpiUnid.textContent = totalUnidades.toLocaleString('pt-BR');
+
+    const kpiVal = document.getElementById("kpiValorTotalEstoque");
+    if (kpiVal) kpiVal.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotalEstoque);
 
     // Tabela de itens recentes
     const tbody = document.getElementById("dashboardRecentTableBody");
@@ -558,25 +583,48 @@ window.carregarDashboardKPIs = async function() {
 //  AJUSTE RÁPIDO DE QUANTIDADE (+ / -)
 // ============================================================
 window.ajustarQuantidadeRapida = async function(produtoId, delta) {
-    if (isDemoMode()) {
-        let produtos = JSON.parse(localStorage.getItem("demo_produtos") || "[]");
-        const prod = produtos.find(p => p.id == produtoId);
-        if (!prod) return;
+    const row = document.querySelector(`input[data-id="${produtoId}"]`)?.closest("tr");
+    const valEl = row ? row.querySelector(".qty-value") : null;
+    const prod = (typeof todosOsProdutos !== 'undefined' ? todosOsProdutos : []).find(p => p.id == produtoId);
 
-        prod.quantidade = Math.max(0, (parseInt(prod.quantidade, 10) || 0) + delta);
-        localStorage.setItem("demo_produtos", JSON.stringify(produtos));
-        mostrarAlerta(`Quantidade de '${prod.nome}' atualizada para ${prod.quantidade}!`, "success");
+    const qtdAnterior = prod ? prod.quantidade : (valEl ? parseInt(valEl.textContent, 10) : 0);
+    const novaQtd = Math.max(0, qtdAnterior + delta);
 
-        if (document.getElementById("dashboardRecentTableBody")) carregarDashboardKPIs();
-        if (document.getElementById("productTable")) {
-            const row = document.querySelector(`input[data-id="${produtoId}"]`)?.closest("tr");
-            if (row) {
-                const valEl = row.querySelector(".qty-value");
-                if (valEl) valEl.textContent = prod.quantidade;
+    if (delta < 0 && qtdAnterior <= 0) {
+        mostrarAlerta("Não é possível reduzir estoque zerado.", "warning");
+        return;
+    }
+
+    // UPDATE OTIMISTA IMEDIATO NO DOM (0ms de latência percebida)
+    if (valEl) valEl.textContent = novaQtd;
+    if (prod) prod.quantidade = novaQtd;
+
+    // Atualiza status badge otimista se aplicável
+    if (row) {
+        const badgeEl = row.querySelector(".badge");
+        if (badgeEl) {
+            if (novaQtd <= 0) {
+                badgeEl.className = "badge badge-danger";
+                badgeEl.innerHTML = '<i class="ti ti-circle-x"></i> Esgotado';
+            } else if (novaQtd < 5) {
+                badgeEl.className = "badge badge-warning";
+                badgeEl.innerHTML = '<i class="ti ti-alert-triangle"></i> Baixo';
             } else {
-                iniciarPaginaTabela();
+                badgeEl.className = "badge badge-success";
+                badgeEl.innerHTML = '<i class="ti ti-check"></i> Normal';
             }
         }
+    }
+
+    if (isDemoMode()) {
+        let produtos = JSON.parse(localStorage.getItem("demo_produtos") || "[]");
+        const pDemo = produtos.find(p => p.id == produtoId);
+        if (pDemo) {
+            pDemo.quantidade = novaQtd;
+            localStorage.setItem("demo_produtos", JSON.stringify(produtos));
+        }
+        mostrarAlerta(`Quantidade atualizada para ${novaQtd}!`, "success");
+        if (document.getElementById("dashboardRecentTableBody") || document.getElementById("kpiTotalProdutos")) carregarDashboardKPIs();
         return;
     }
 
@@ -596,14 +644,19 @@ window.ajustarQuantidadeRapida = async function(produtoId, delta) {
         if (updateRes.ok) {
             const resData = await updateRes.json();
             mostrarAlerta(resData.message || `Estoque atualizado com sucesso!`, "success");
-            if (document.getElementById("dashboardRecentTableBody")) carregarDashboardKPIs();
-            if (document.getElementById("productTable")) iniciarPaginaTabela();
+            if (document.getElementById("dashboardRecentTableBody") || document.getElementById("kpiTotalProdutos")) carregarDashboardKPIs();
         } else {
+            // ROLLBACK OTIMISTA EM CASO DE ERRO DE CONCORRÊNCIA OU SALDO
             const err = await updateRes.json();
-            mostrarAlerta(err.message || "Erro ao atualizar quantidade.", "error");
+            if (valEl) valEl.textContent = qtdAnterior;
+            if (prod) prod.quantidade = qtdAnterior;
+            mostrarAlerta(err.message || "Erro ao movimentar estoque.", "error");
         }
     } catch (e) {
-        mostrarAlerta("Erro de conexão com o servidor.", "error");
+        // ROLLBACK OTIMISTA POR FALHA DE REDE
+        if (valEl) valEl.textContent = qtdAnterior;
+        if (prod) prod.quantidade = qtdAnterior;
+        mostrarAlerta("Erro de conexão ao sincronizar estoque.", "error");
     }
 };
 
@@ -618,13 +671,7 @@ async function iniciarPaginaTabela() {
     const tbody = document.querySelector("#productTable tbody");
     const btnExcluir = document.getElementById("excluirSelecionadosBtn");
 
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="9" style="text-align: center; padding: 3rem; color: var(--slate-400);">
-                <i class="ti ti-loader" style="font-size: 1.8rem; animation: spin 1s infinite linear;"></i>
-                <p style="margin-top: 0.5rem;">Carregando produtos do estoque...</p>
-            </td>
-        </tr>`;
+    renderizarSkeletonsTabela(tbody, 10, 5);
 
     window.atualizarBotaoExcluirSelecionados = () => {
         const sel = document.querySelectorAll(".select-product:checked");
@@ -656,7 +703,7 @@ async function iniciarPaginaTabela() {
         aplicarFiltrosEBusca();
         configurarExclusaoEmMassa(btnExcluir);
     } catch (e) {
-        tbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding: 2rem; color: var(--rose);'>Erro ao conectar com o servidor.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='10' style='text-align:center; padding: 2rem; color: var(--rose);'>Erro ao conectar com o servidor.</td></tr>";
     }
 }
 
@@ -708,7 +755,7 @@ function renderizarTabelaProdutos(produtos) {
     if (!Array.isArray(produtos) || produtos.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="9" style="text-align: center; padding: 3rem; color: var(--slate-400);">
+                <td colspan="10" style="text-align: center; padding: 3rem; color: var(--slate-400);">
                     <i class="ti ti-search-off" style="font-size: 2rem; color: var(--slate-300);"></i>
                     <p style="margin-top: 0.5rem; font-weight: 500;">Nenhum produto encontrado com os filtros atuais.</p>
                 </td>
@@ -722,9 +769,14 @@ function renderizarTabelaProdutos(produtos) {
         let badgeStatus = '<span class="badge badge-success"><i class="ti ti-check"></i> Normal</span>';
         if (p.quantidade <= 0) {
             badgeStatus = '<span class="badge badge-danger"><i class="ti ti-circle-x"></i> Esgotado</span>';
-        } else if (p.quantidade < 5) {
+        } else if (p.quantidade < (p.estoque_minimo || 5)) {
             badgeStatus = '<span class="badge badge-warning"><i class="ti ti-alert-triangle"></i> Baixo</span>';
         }
+
+        const custoUnit = parseFloat(p.custo_unitario) || 0.0;
+        const totalVal = Math.round((p.quantidade * custoUnit) * 100) / 100;
+        const totalFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalVal);
+        const custoFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(custoUnit);
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -746,6 +798,10 @@ function renderizarTabelaProdutos(produtos) {
                 </div>
             </td>
             <td>${badgeStatus}</td>
+            <td>
+                <div><strong>${totalFormatado}</strong></div>
+                <small style="color: var(--slate-400); font-size: 0.72rem;">${custoFormatado}/un</small>
+            </td>
             <td><code>${escaparHTML(p.referencia)}</code></td>
             <td>${escaparHTML(p.endereco || '-')}</td>
             <td>${p.validade ? escaparHTML(p.validade) : '-'}</td>
@@ -1041,5 +1097,342 @@ window.deletarUsuario = async (id) => {
         } catch (erro) { 
             mostrarAlerta("Erro de conexão ao remover usuário.", "error"); 
         }
+    }
+};
+
+// ============================================================
+//  ENTERPRISE MULTI-TENANCY & SUPERADMIN PLATFORM FUNCTIONS
+// ============================================================
+
+window.renderizarSkeletonsTabela = function(tbody, colunas = 9, linhas = 5) {
+    if (!tbody) return;
+    let html = "";
+    for (let i = 0; i < linhas; i++) {
+        html += `<tr>
+            <td style="text-align: center;"><div class="skeleton-shimmer" style="width: 16px; height: 16px;"></div></td>
+            <td><div class="skeleton-shimmer skeleton-title" style="margin-bottom: 4px;"></div><div class="skeleton-shimmer skeleton-text" style="width: 40%;"></div></td>
+            <td><div class="skeleton-shimmer skeleton-text" style="width: 70%;"></div></td>
+            <td><div class="skeleton-shimmer skeleton-text" style="width: 50%;"></div></td>
+            <td><div class="skeleton-shimmer skeleton-badge"></div></td>
+            <td><div class="skeleton-shimmer skeleton-text" style="width: 60%;"></div></td>
+            <td><div class="skeleton-shimmer skeleton-text" style="width: 65%;"></div></td>
+            <td><div class="skeleton-shimmer skeleton-text" style="width: 50%;"></div></td>
+            <td style="text-align: right;"><div class="skeleton-shimmer" style="width: 55px; height: 28px;"></div></td>
+        </tr>`;
+    }
+    tbody.innerHTML = html;
+};
+
+window.carregarContextoOrganizacoes = async function() {
+    const selector = document.getElementById("orgContextSelector");
+    const banner = document.getElementById("impersonationBanner");
+    const bannerName = document.getElementById("impersonatedOrgNameBanner");
+
+    const impersonatedBy = localStorage.getItem("impersonatedBy");
+    const activeOrgNome = localStorage.getItem("activeOrgNome") || "Empresa Cliente";
+    if (impersonatedBy && banner) {
+        banner.style.display = "flex";
+        if (bannerName) bannerName.textContent = activeOrgNome;
+    }
+
+    if (!selector) return;
+
+    if (isDemoMode()) {
+        selector.innerHTML = '<option value="1">SimpStock Matriz (Demo)</option>';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/organizations/my`, {
+            headers: getAuthHeaders()
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const orgs = data.organizations || [];
+            if (orgs.length > 0) {
+                selector.innerHTML = "";
+                const currentOrgId = localStorage.getItem("activeOrgId") || String(data.active_organization_id || orgs[0].id);
+                orgs.forEach(o => {
+                    const opt = document.createElement("option");
+                    opt.value = o.id;
+                    opt.textContent = `${o.nome} (${(o.plano || 'PRO').toUpperCase()})`;
+                    if (String(o.id) === String(currentOrgId)) {
+                        opt.selected = true;
+                    }
+                    selector.appendChild(opt);
+                });
+            }
+        }
+    } catch (e) {
+        console.warn("Falha ao carregar organizações:", e);
+    }
+};
+
+window.trocarOrganizacaoContexto = async function(orgId) {
+    if (isDemoMode()) {
+        mostrarAlerta("Troca de organização simulada no modo demonstração!", "success");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/organizations/switch`, {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ organization_id: parseInt(orgId, 10) })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("activeOrgId", data.organization.id);
+            localStorage.setItem("activeOrgNome", data.organization.nome);
+            mostrarAlerta(`Ambiente alternado para '${data.organization.nome}'!`, "success");
+            setTimeout(() => {
+                window.location.reload();
+            }, 600);
+        } else {
+            mostrarAlerta(data.message || "Não foi possível alternar de organização.", "error");
+        }
+    } catch (e) {
+        mostrarAlerta("Erro de conexão ao alternar organização.", "error");
+    }
+};
+
+window.encerrarImpersonacao = function() {
+    const originalToken = localStorage.getItem("original_superadmin_token");
+    if (originalToken) {
+        localStorage.setItem("token", originalToken);
+        localStorage.removeItem("original_superadmin_token");
+        localStorage.removeItem("impersonatedBy");
+        mostrarAlerta("Sessão de suporte encerrada. Retornando ao Superadmin...", "success");
+        setTimeout(() => {
+            window.location.href = "Superadmin.html";
+        }, 800);
+    } else {
+        localStorage.removeItem("impersonatedBy");
+        window.location.reload();
+    }
+};
+
+window.verificarAcessoSuperadmin = function() {
+    if (!verificarAutenticacao()) return;
+    const isSuper = getIsSuperadmin();
+    const isAdmin = getIsAdmin();
+    const userId = getUsuarioId();
+    if (!isSuper && userId !== 1 && !isAdmin) {
+        mostrarAlerta("Acesso restrito a Superadministradores da Plataforma!", "error");
+        setTimeout(() => { window.location.href = "Tela_inicial.html"; }, 1500);
+    }
+};
+
+window.carregarOverviewSuperadmin = async function() {
+    try {
+        const res = await fetch(`${API_URL}/superadmin/overview`, { headers: getAuthHeaders() });
+        if (res.ok) {
+            const data = await res.json();
+            const ov = data.overview;
+            const elEmpresas = document.getElementById("kpiTotalEmpresas");
+            if (elEmpresas) elEmpresas.textContent = ov.total_organizations;
+            const elAtivas = document.getElementById("kpiEmpresasAtivas");
+            if (elAtivas) elAtivas.textContent = `${ov.active_organizations} ativas na nuvem`;
+            const elUsers = document.getElementById("kpiTotalUsuariosGlobais");
+            if (elUsers) elUsers.textContent = ov.total_users;
+            const elSkus = document.getElementById("kpiTotalSkusGlobais");
+            if (elSkus) elSkus.textContent = ov.total_products;
+            const elItens = document.getElementById("kpiTotalItensGlobais");
+            if (elItens) elItens.textContent = `${ov.total_inventory_items} unidades físicas`;
+            const elVal = document.getElementById("kpiValorEstoqueGlobal");
+            if (elVal) elVal.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(ov.total_inventory_value);
+        }
+    } catch (e) {
+        console.warn("Erro ao carregar overview do superadmin:", e);
+    }
+};
+
+let listaOrganizacoesSuperadmin = [];
+
+window.carregarOrganizacoesSuperadmin = async function() {
+    const tbody = document.getElementById("tabelaOrganizacoesBody");
+    if (!tbody) return;
+    renderizarSkeletonsTabela(tbody, 9, 4);
+
+    try {
+        const res = await fetch(`${API_URL}/superadmin/organizations`, { headers: getAuthHeaders() });
+        if (res.ok) {
+            listaOrganizacoesSuperadmin = await res.json();
+            renderizarTabelaOrganizacoes(listaOrganizacoesSuperadmin);
+        } else {
+            tbody.innerHTML = "<tr><td colspan='9' style='text-align: center; color: var(--rose); padding: 2rem;'>Erro ao carregar organizações.</td></tr>";
+        }
+    } catch (e) {
+        tbody.innerHTML = "<tr><td colspan='9' style='text-align: center; color: var(--rose); padding: 2rem;'>Erro de conexão com o servidor.</td></tr>";
+    }
+};
+
+function renderizarTabelaOrganizacoes(orgs) {
+    const tbody = document.getElementById("tabelaOrganizacoesBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (!Array.isArray(orgs) || orgs.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='9' style='text-align: center; padding: 2.5rem; color: var(--slate-400);'>Nenhuma organização encontrada.</td></tr>";
+        return;
+    }
+
+    orgs.forEach(o => {
+        const statusBadge = o.ativo 
+            ? '<span class="badge badge-success"><i class="ti ti-circle-check"></i> Ativa</span>'
+            : '<span class="badge badge-danger"><i class="ti ti-circle-x"></i> Inativa</span>';
+
+        const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(o.valor_estoque || 0);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><code>#${escaparHTML(String(o.id))}</code></td>
+            <td><strong>${escaparHTML(o.nome)}</strong></td>
+            <td><code>${escaparHTML(o.slug)}</code></td>
+            <td><span class="badge-plan ${escaparHTML(o.plano)}">${escaparHTML(o.plano)}</span></td>
+            <td>${statusBadge}</td>
+            <td>${o.total_usuarios || 0}</td>
+            <td>${o.total_produtos || 0}</td>
+            <td><strong>${valorFormatado}</strong></td>
+            <td style="text-align: right;">
+                <button type="button" class="btn-primary-action" onclick="abrirModalImpersonar(${o.id}, '${escaparHTML(o.nome)}')" style="font-size: 0.75rem; padding: 4px 10px; background: #dc2626; border-color: #dc2626;" title="Acessar painel como esta empresa com registro de auditoria">
+                    <i class="ti ti-user-check"></i>
+                    <span>Log in as</span>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+window.filtrarTabelaOrganizacoes = function() {
+    const termo = (document.getElementById("filtroOrganizacaoInput")?.value || "").toLowerCase().trim();
+    if (!termo) {
+        renderizarTabelaOrganizacoes(listaOrganizacoesSuperadmin);
+        return;
+    }
+    const filtradas = listaOrganizacoesSuperadmin.filter(o =>
+        (o.nome || "").toLowerCase().includes(termo) || (o.slug || "").toLowerCase().includes(termo)
+    );
+    renderizarTabelaOrganizacoes(filtradas);
+};
+
+window.abrirModalImpersonar = function(orgId, orgNome) {
+    const modal = document.getElementById("modalImpersonar");
+    const elId = document.getElementById("impersonateOrgId");
+    const elNome = document.getElementById("impersonateOrgNome");
+    const elMotivo = document.getElementById("impersonateMotivo");
+    if (elId) elId.value = orgId;
+    if (elNome) elNome.textContent = orgNome;
+    if (elMotivo) elMotivo.value = "";
+    if (modal) modal.style.display = "flex";
+};
+
+window.fecharModalImpersonar = function() {
+    const modal = document.getElementById("modalImpersonar");
+    if (modal) modal.style.display = "none";
+};
+
+window.confirmarImpersonacao = async function() {
+    const orgId = document.getElementById("impersonateOrgId")?.value;
+    const motivo = document.getElementById("impersonateMotivo")?.value.trim();
+
+    if (!motivo || motivo.length < 5) {
+        mostrarAlerta("Justificativa obrigatória (mínimo 5 caracteres) para auditoria!", "warning");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/superadmin/impersonate`, {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ target_org_id: parseInt(orgId, 10), reason: motivo })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            const tokenAtual = getAuthToken();
+            localStorage.setItem("original_superadmin_token", tokenAtual);
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("impersonatedBy", data.impersonated_by.id);
+            localStorage.setItem("activeOrgId", data.organization.id);
+            localStorage.setItem("activeOrgNome", data.organization.nome);
+
+            mostrarAlerta(`Sessão de suporte iniciada na organização '${data.organization.nome}'!`, "success");
+            setTimeout(() => {
+                window.location.href = "Tela_inicial.html";
+            }, 800);
+        } else {
+            mostrarAlerta(data.message || "Falha ao iniciar impersonação.", "error");
+        }
+    } catch (e) {
+        mostrarAlerta("Erro de conexão ao solicitar impersonação.", "error");
+    }
+};
+
+window.abrirModalNovaOrganizacao = function() {
+    const modal = document.getElementById("modalNovaOrg");
+    if (modal) modal.style.display = "flex";
+};
+
+window.fecharModalNovaOrg = function() {
+    const modal = document.getElementById("modalNovaOrg");
+    if (modal) modal.style.display = "none";
+};
+
+window.salvarNovaOrganizacao = async function(e) {
+    e.preventDefault();
+    const nome = document.getElementById("novaOrgNome")?.value.trim();
+    const cnpj = document.getElementById("novaOrgCnpj")?.value.trim();
+    const plano = document.getElementById("novaOrgPlano")?.value;
+
+    try {
+        const res = await fetch(`${API_URL}/superadmin/organizations`, {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ nome, cnpj_ou_documento: cnpj, plano })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            mostrarAlerta(`Organização '${nome}' provisionada com sucesso!`, "success");
+            fecharModalNovaOrg();
+            carregarOrganizacoesSuperadmin();
+            carregarOverviewSuperadmin();
+        } else {
+            mostrarAlerta(data.message || "Erro ao criar organização.", "error");
+        }
+    } catch (err) {
+        mostrarAlerta("Erro de conexão ao criar organização.", "error");
+    }
+};
+
+window.carregarAuditoriaSuperadmin = async function() {
+    const tbody = document.getElementById("tabelaAuditoriaBody");
+    if (!tbody) return;
+
+    try {
+        const res = await fetch(`${API_URL}/superadmin/audit-logs?limit=25`, { headers: getAuthHeaders() });
+        if (res.ok) {
+            const logs = await res.json();
+            tbody.innerHTML = "";
+            if (logs.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align: center; padding: 2rem; color: var(--slate-400);'>Nenhum registro de auditoria.</td></tr>";
+                return;
+            }
+            logs.forEach(l => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><small style="color: var(--slate-500);">${escaparHTML(l.criado_em)}</small></td>
+                    <td><code>${escaparHTML(l.acao)}</code></td>
+                    <td><strong>${escaparHTML(l.usuario_nome)}</strong> <small style="color: var(--slate-400);">(${escaparHTML(l.usuario_email)})</small></td>
+                    <td><span class="badge badge-blue">${escaparHTML(l.organization_nome || 'Global')}</span></td>
+                    <td><code>${escaparHTML(l.ip_address || '-')}</code></td>
+                    <td>${escaparHTML(l.detalhes || '-')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (e) {
+        tbody.innerHTML = "<tr><td colspan='6' style='text-align: center; color: var(--rose); padding: 1.5rem;'>Erro ao carregar auditoria.</td></tr>";
     }
 };
