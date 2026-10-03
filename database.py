@@ -168,6 +168,7 @@ def init_db(db_path=None):
             organization_id INTEGER          NULL,
             tipo            VARCHAR(80)  NOT NULL DEFAULT 'duvida',
             mensagem        TEXT         NOT NULL,
+            destinatario    VARCHAR(150) NOT NULL DEFAULT 'w.thiagosan@gmail.com',
             status          VARCHAR(30)  NOT NULL DEFAULT 'aberto',
             criado_em       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT pk_suporte_chamados PRIMARY KEY (id AUTOINCREMENT),
@@ -197,6 +198,7 @@ def init_db(db_path=None):
     _add_column_if_not_exists(db, 'movimentacoes', 'organization_id INTEGER NULL')
     _add_column_if_not_exists(db, 'movimentacoes', 'custo_unitario REAL NOT NULL DEFAULT 0.0')
     _add_column_if_not_exists(db, 'movimentacoes', 'documento_referencia VARCHAR(100) NULL')
+    _add_column_if_not_exists(db, 'suporte_chamados', "destinatario VARCHAR(150) NOT NULL DEFAULT 'w.thiagosan@gmail.com'")
 
     # Índices adicionais para performance multi-tenant
     db.executescript('''

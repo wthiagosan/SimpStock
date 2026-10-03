@@ -210,13 +210,19 @@
             const token = localStorage.getItem("token");
             if (token) {
                 const nome = localStorage.getItem("usuarioNome") || localStorage.getItem("usuarioLogado") || "Lojista";
-                
+                const isSuperadmin = localStorage.getItem("isSuperadmin") === "true" ||
+                                     localStorage.getItem("usuarioEmail") === "admin@simpstock.com" ||
+                                     localStorage.getItem("usuarioRole") === "SUPERADMIN";
+                const targetUrl = isSuperadmin ? "src/Superadmin.html" : "src/Tela_inicial.html";
+                const painelLabel = isSuperadmin ? "Painel Superadmin" : "Ir para o Painel";
+                const heroLabel = isSuperadmin ? `<i class="ti ti-shield-bolt"></i> Painel Superadmin (${nome})` : `<i class="ti ti-layout-dashboard"></i> Acessar Meu Painel (${nome})`;
+
                 // 1. Adapta botão da Navbar
                 const btnNav = document.querySelector(".nav-btn-login");
                 if (btnNav) {
-                    btnNav.href = "src/Tela_inicial.html";
-                    btnNav.innerHTML = '<i class="ti ti-layout-dashboard"></i> Ir para o Painel';
-                    btnNav.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                    btnNav.href = targetUrl;
+                    btnNav.innerHTML = `<i class="${isSuperadmin ? 'ti ti-shield-bolt' : 'ti ti-layout-dashboard'}"></i> ${painelLabel}`;
+                    btnNav.style.background = isSuperadmin ? "linear-gradient(135deg, #4f46e5, #7c3aed)" : "linear-gradient(135deg, #10b981, #059669)";
                     
                     const navMenu = btnNav.closest(".nav-menu");
                     if (navMenu && !document.getElementById("btnNavSairHome")) {
@@ -234,6 +240,8 @@
                             localStorage.removeItem("usuarioEmail");
                             localStorage.removeItem("usuarioId");
                             localStorage.removeItem("isAdmin");
+                            localStorage.removeItem("isSuperadmin");
+                            localStorage.removeItem("usuarioRole");
                             localStorage.removeItem("idProdutoEdicao");
                             localStorage.removeItem("offline_mode");
                             window.location.reload();
@@ -244,8 +252,8 @@
                 // 2. Adapta Hero Buttons
                 const btnPrimary = document.querySelector(".btn-hero-primary");
                 if (btnPrimary) {
-                    btnPrimary.href = "src/Tela_inicial.html";
-                    btnPrimary.innerHTML = `<i class="ti ti-layout-dashboard"></i> Acessar Meu Painel (${nome})`;
+                    btnPrimary.href = targetUrl;
+                    btnPrimary.innerHTML = heroLabel;
                 }
 
                 const btnDemo = document.getElementById("btnHeroDemo");

@@ -284,6 +284,7 @@ def test_support_ticket_submission_and_listing(client, user_headers, admin_heade
     assert ticket['tipo'] == 'problema_tecnico'
     assert ticket['status'] == 'aberto'
     assert 'SKU-TESTE' in ticket['mensagem']
+    assert ticket['destinatario'] == 'w.thiagosan@gmail.com'
 
     # 2. Tentativa de envio com mensagem em branco deve retornar 400
     res_bad = client.post('/api/support', json={'mensagem': ''}, headers=user_headers)
@@ -295,4 +296,25 @@ def test_support_ticket_submission_and_listing(client, user_headers, admin_heade
     tickets = res_list.get_json()
     assert isinstance(tickets, list)
     assert any('SKU-TESTE' in t['mensagem'] for t in tickets)
+    assert all(t.get('destinatario') == 'w.thiagosan@gmail.com' for t in tickets)
+
+
+def test_api_organizations_alias_and_resilient_fields(client, admin_headers):
+    # Teste de compatibilidade para frontend chamando /api/organizations
+    payload = {
+        'name': 'Distribuidora Central Log',
+        'document': '12.345.678/0001-90',
+        'plan': 'enterprise'
+    }
+    res = client.post('/api/organizations', json=payload, headers=admin_headers)
+    assert res.status_code == 201
+    data = res.get_json()
+    assert data['organization']['name'] == 'Distribuidora Central Log'
+    assert data['organization']['document'] == '12.345.678/0001-90'
+
+    # Get via /api/organizations
+    res_get = client.get('/api/organizations', headers=admin_headers)
+    assert res_get.status_code == 200
+    orgs = res_get.get_json()
+    assert any(o['name'] == 'Distribuidora Central Log' for o in orgs)
 
