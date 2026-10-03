@@ -1,6 +1,7 @@
-﻿# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 *.class
 
 # C extensions
@@ -28,14 +29,27 @@ wheels/
 venv/
 env/
 ENV/
+.venv/
+.venv*/
 
-# Environments variables
+# Environment variables & secrets (NUNCA comitar credenciais)
 .env
-.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+service-account*.json
+gcp-key*.json
+credentials*.json
 
-# Databases
+# Databases (arquivos locais SQLite)
 *.db
 *.sqlite3
+*.db-journal
+*.db-wal
 
 # Unit test / coverage reports
 .coverage
@@ -51,3 +65,7 @@ htmlcov/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Logs & Docker artifacts
+*.log
+docker-compose.override.yml

@@ -25,6 +25,7 @@ def create_app(config_class=Config):
     app.register_blueprint(organizations_bp)
 
     @app.route('/', methods=['GET'])
+    @app.route('/health', methods=['GET'])
     def health_check():
         return jsonify({
             'status': 'online',
