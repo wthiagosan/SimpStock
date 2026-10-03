@@ -54,6 +54,7 @@ def get_overview():
 
 @superadmin_bp.route('/superadmin/organizations', methods=['GET'])
 @superadmin_bp.route('/admin/organizations', methods=['GET'])
+@superadmin_bp.route('/api/organizations', methods=['GET'])
 @superadmin_required
 def list_organizations():
     """Lista todas as organizações da plataforma com contadores e valoração agregada."""
@@ -83,6 +84,7 @@ def list_organizations():
 
 @superadmin_bp.route('/superadmin/organizations', methods=['POST'])
 @superadmin_bp.route('/admin/organizations', methods=['POST'])
+@superadmin_bp.route('/api/organizations', methods=['POST'])
 @superadmin_required
 def create_organization():
     """Provisiona um novo tenant (empresa) na plataforma."""
@@ -177,6 +179,7 @@ def update_organization(org_id):
 
 @superadmin_bp.route('/superadmin/impersonate', methods=['POST'])
 @superadmin_bp.route('/admin/organizations/<int:target_org_id>/impersonate', methods=['POST'])
+@superadmin_bp.route('/api/organizations/<int:target_org_id>/impersonate', methods=['POST'])
 @superadmin_required
 def impersonate(target_org_id=None):
     """Permite ao Superadmin assumir o contexto de qualquer organização com auditoria estrita."""
@@ -295,6 +298,7 @@ def submit_support_ticket():
     data = request.get_json() or {}
     tipo = (data.get('tipo') or data.get('assunto') or data.get('subject') or 'duvida').strip()
     mensagem = (data.get('mensagem') or data.get('message') or data.get('descricao') or '').strip()
+    destinatario = (data.get('destinatario') or 'w.thiagosan@gmail.com').strip()
 
     if not mensagem:
         return jsonify({'message': 'A mensagem/descrição da solicitação é obrigatória.'}), 400
@@ -304,15 +308,15 @@ def submit_support_ticket():
     usuario_id = g.user['id']
 
     cursor = db.execute(
-        '''INSERT INTO suporte_chamados (usuario_id, organization_id, tipo, mensagem, status)
-           VALUES (?, ?, ?, ?, 'aberto')''',
-        (usuario_id, org_id, tipo, mensagem)
+        '''INSERT INTO suporte_chamados (usuario_id, organization_id, tipo, mensagem, destinatario, status)
+           VALUES (?, ?, ?, ?, ?, 'aberto')''',
+        (usuario_id, org_id, tipo, mensagem, destinatario)
     )
     ticket_id = cursor.lastrowid
 
     log_audit_event(
         db, usuario_id, 'support.ticket_created',
-        f"Chamado #{ticket_id} ({tipo}) criado por {g.user['email']}: {mensagem[:60]}",
+        f"Chamado #{ticket_id} ({tipo}) enviado para {destinatario} por {g.user['email']}: {mensagem[:60]}",
         organization_id=org_id, ip_address=request.remote_addr
     )
     db.commit()

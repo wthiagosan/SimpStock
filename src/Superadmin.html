@@ -143,9 +143,9 @@
                         <i class="ti ti-help-circle"></i>
                         <span>Suporte</span>
                     </button>
-                    <button class="btn-primary-action" onclick="abrirModalNovaOrganizacao()">
-                        <i class="ti ti-plus"></i>
-                        <span>Nova Organização</span>
+                    <button class="btn-primary-action" onclick="abrirModalNovaOrganizacao()" id="btnCriarOrgTopbar" title="Cadastrar nova empresa ou organização no SimpStock">
+                        <i class="ti ti-circle-plus"></i>
+                        <span>+ Criar Nova Organização</span>
                     </button>
                     <a href="Tela_inicial.html" class="btn-secondary">
                         <i class="ti ti-arrow-left"></i>
@@ -229,6 +229,10 @@
                                    class="form-control" style="width: 260px; font-size: 0.85rem;" oninput="filtrarTabelaOrganizacoes()">
                             <button class="btn-secondary" onclick="carregarOrganizacoesSuperadmin()" title="Atualizar Lista">
                                 <i class="ti ti-refresh"></i>
+                            </button>
+                            <button class="btn-primary-action" onclick="abrirModalNovaOrganizacao()" id="btnCriarOrgTabela" style="padding: 0.5rem 0.9rem; font-size: 0.82rem;" title="Cadastrar nova organização">
+                                <i class="ti ti-circle-plus"></i>
+                                <span>+ Nova Organização</span>
                             </button>
                         </div>
                     </div>
