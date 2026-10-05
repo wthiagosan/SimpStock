@@ -1,41 +1,51 @@
-# ============================================================
-#  SimpStock - Production Dockerfile (Python 3.12 Slim)
-# ============================================================
-FROM python:3.12-slim AS base
+# ==============================================================================
+# SimpStock - Dockerfile Otimizado para Produção (Google Cloud Run)
+# ==============================================================================
+FROM python:3.12-slim
 
-# Previne criação de arquivos .pyc e força stdout imediato
+# Variáveis de ambiente para execução otimizada e sem buffer do Python
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PORT=5000 \
-    FLASK_ENV=production
+    PORT=8080
 
+# Diretório de trabalho da aplicação
 WORKDIR /app
 
-# Instala dependências do sistema necessárias
+# Utilitários mínimos do sistema operacional e limpeza imediata de cache
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Cria usuário não-root para execução segura do container
-RUN groupadd -r appgroup && useradd -r -g appgroup -d /app appuser
+# Criação de usuário não-privilegiado para conformidade com segurança do Cloud Run
+RUN groupadd -r simpstock && useradd -r -g simpstock -d /app -s /sbin/nologin simpstock
 
-# Copia dependências e instala
+# Instalação das dependências Python em camada isolada
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copia o código da aplicação
+# Cópia integral do código-fonte
 COPY . .
 
-# Assegura permissões adequadas
-RUN chown -R appuser:appgroup /app
+# Ajuste de propriedade para o usuário de execução
+RUN chown -R simpstock:simpstock /app
 
-USER appuser
+# Comuta para usuário não-root
+USER simpstock
 
-EXPOSE 5000
+# Porta documentada para o Cloud Run
+EXPOSE 8080
 
-# Healthcheck no endpoint raiz da API
+# Healthcheck de conformidade para orquestradores de contêiner
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/ || exit 1
+    CMD curl -f http://localhost:${PORT:-8080}/ || exit 1
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--access-logfile", "-", "app:create_app()"]
+# Inicialização do Gunicorn com binding dinâmico na variável $PORT do Cloud Run (fallback 8080)
+CMD exec gunicorn \
+    --bind 0.0.0.0:${PORT:-8080} \
+    --workers 2 \
+    --threads 4 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    app:app

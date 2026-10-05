@@ -1,4 +1,4 @@
-﻿import os
+import os
 from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -10,8 +10,12 @@ class Config:
     JWT_SECRET = os.getenv('JWT_SECRET', 'simpstock-jwt-super-secret-key-change-in-production')
     JWT_EXPIRATION_HOURS = int(os.getenv('JWT_EXPIRATION_HOURS', '24'))
 
-    DATABASE = os.getenv('DATABASE_PATH', os.path.join(BASE_DIR, 'banco.db'))
-    if not os.path.isabs(DATABASE):
+    # Configuração prioritária e exclusiva via DATABASE_URL (Supabase/PostgreSQL)
+    DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+
+    # Compatibilidade e fallback para SQLite local em testes ou desenvolvimento offline
+    DATABASE = DATABASE_URL or os.getenv('DATABASE_PATH', os.path.join(BASE_DIR, 'banco.db'))
+    if DATABASE and not DATABASE.startswith(('postgresql://', 'postgres://', 'sqlite://')) and not os.path.isabs(DATABASE):
         DATABASE = os.path.join(BASE_DIR, DATABASE)
 
     ADMIN_NAME = os.getenv('ADMIN_NAME', 'ADM')
